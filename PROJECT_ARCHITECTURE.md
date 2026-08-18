@@ -152,7 +152,16 @@ The intended final architecture is:
 
 ## Current implementation
 
-The frontend currently uses local/in-repository portfolio content.
+The public frontend fetches portfolio section data from the Express API.
+The API reads published records through Prisma from PostgreSQL/Supabase.
+Mock content has been seeded to validate this integration path.
+
+The retired frontend local-content files remain temporarily and should be
+removed only after browser-level verification of the frontend -> API -> database flow.
+
+### Historical baseline
+
+At project creation, the frontend used local/in-repository portfolio content.
 
 For example:
 
@@ -164,13 +173,13 @@ content.ts / service.ts
 Portfolio UI
 ```
 
-The backend currently exists separately and exposes portfolio routes,
-but the frontend is not yet consuming those routes.
+At that point, the backend existed separately and exposed portfolio routes,
+but the frontend was not yet consuming those routes.
 
-The backend repository layer currently contains local/in-repository data
+At that point, the backend repository layer contained local/in-repository data
 rather than active database queries.
 
-Prisma/PostgreSQL are scaffolded but are not yet the active source of
+Prisma/PostgreSQL were scaffolded but were not yet the active source of
 portfolio data.
 
 **This is a temporary implementation state, not the final
@@ -583,7 +592,7 @@ confirmation.
 
 # 16. Current Development Phase
 
-**Current phase: Frontend content population**
+**Current phase: Frontend/API integration verification and content population**
 
 The immediate goal is:
 

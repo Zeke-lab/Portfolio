@@ -14,6 +14,7 @@ This package contains the portfolio API and database layer.
 - `npm run build` - compile TypeScript
 - `npm run db:generate` - generate Prisma client
 - `npm run db:migrate` - run Prisma migrations
+- `npm run db:seed` - seed mock portfolio data
 
 ## Environment
-Copy `.env.example` to `.env` and set `DATABASE_URL`, `PORT`, and `CORS_ORIGIN`.
+Copy `.env.example` to `.env` and set `DATABASE_URL`, `DIRECT_URL`, `PORT`, and `CORS_ORIGIN`.

@@ -68,6 +68,7 @@ model Project {
   imageUrl     String?
   liveUrl      String?
   repoUrl      String?
+  caseStudyLink String?
   featured     Boolean            @default(false)
   status       ContentStatus      @default(draft)
   createdAt    DateTime           @default(now())

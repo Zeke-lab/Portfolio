@@ -1,0 +1,150 @@
+{
+  "info": {
+    "_postman_id": "ec5a5f0c-b0ee-4cf4-becd-2cb831c2e1c3",
+    "name": "Portfolio API — Public Endpoints",
+    "description": "Read-only checks for the local Express API backed by Prisma and Supabase. Start the backend with `npm.cmd run dev` from `backend` before running this collection.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:4000"
+    }
+  ],
+  "item": [
+    {
+      "name": "Health",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/health"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Returns HTTP 200\", () => pm.response.to.have.status(200));",
+              "pm.test(\"Returns JSON\", () => pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\"));",
+              "const body = pm.response.json();",
+              "pm.test(\"Reports a healthy portfolio backend\", () => {",
+              "  pm.expect(body).to.have.property(\"ok\", true);",
+              "  pm.expect(body).to.have.property(\"service\", \"portfolio-backend\");",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Portfolio Content",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/api/portfolio/content"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Returns HTTP 200\", () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "pm.test(\"Returns the public portfolio content shape\", () => {",
+              "  pm.expect(body).to.have.property(\"profile\");",
+              "  pm.expect(body).to.have.property(\"projects\").that.is.an(\"array\");",
+              "  pm.expect(body).to.have.property(\"skills\").that.is.an(\"array\");",
+              "  pm.expect(body).to.have.property(\"experience\").that.is.an(\"array\");",
+              "  pm.expect(body).to.have.property(\"education\").that.is.an(\"array\");",
+              "  pm.expect(body).to.have.property(\"certifications\").that.is.an(\"array\");",
+              "});",
+              "pm.test(\"Returns seeded published content\", () => {",
+              "  pm.expect(body.profile).to.not.equal(null);",
+              "  pm.expect(body.projects.length).to.be.greaterThan(0);",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Projects",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/api/portfolio/projects"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Returns HTTP 200\", () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "pm.test(\"Returns published projects with technologies\", () => {",
+              "  pm.expect(body).to.be.an(\"array\").that.is.not.empty;",
+              "  pm.expect(body[0]).to.include.keys(\"id\", \"slug\", \"title\", \"status\", \"technologies\");",
+              "  pm.expect(body[0].status).to.equal(\"published\");",
+              "  pm.expect(body[0].technologies).to.be.an(\"array\");",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Skills",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/api/portfolio/skills"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Returns HTTP 200\", () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "pm.test(\"Returns published skills\", () => {",
+              "  pm.expect(body).to.be.an(\"array\").that.is.not.empty;",
+              "  pm.expect(body[0]).to.include.keys(\"id\", \"category\", \"name\", \"status\");",
+              "  pm.expect(body[0].status).to.equal(\"published\");",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Experience",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/api/portfolio/experience"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Returns HTTP 200\", () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "pm.test(\"Returns published experience with bullets\", () => {",
+              "  pm.expect(body).to.be.an(\"array\").that.is.not.empty;",
+              "  pm.expect(body[0]).to.include.keys(\"id\", \"company\", \"role\", \"status\", \"bullets\");",
+              "  pm.expect(body[0].status).to.equal(\"published\");",
+              "  pm.expect(body[0].bullets).to.be.an(\"array\");",
+              "});"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

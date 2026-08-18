@@ -8,18 +8,34 @@ import {
 
 export const portfolioRouter = Router();
 
-portfolioRouter.get("/content", (_request, response) => {
-  response.json(getPortfolioContent());
+portfolioRouter.get("/content", async (_request, response, next) => {
+  try {
+    response.json(await getPortfolioContent());
+  } catch (error) {
+    next(error);
+  }
 });
 
-portfolioRouter.get("/projects", (_request, response) => {
-  response.json(getProjects());
+portfolioRouter.get("/projects", async (_request, response, next) => {
+  try {
+    response.json(await getProjects());
+  } catch (error) {
+    next(error);
+  }
 });
 
-portfolioRouter.get("/skills", (_request, response) => {
-  response.json(getSkills());
+portfolioRouter.get("/skills", async (_request, response, next) => {
+  try {
+    response.json(await getSkills());
+  } catch (error) {
+    next(error);
+  }
 });
 
-portfolioRouter.get("/experience", (_request, response) => {
-  response.json(getExperience());
+portfolioRouter.get("/experience", async (_request, response, next) => {
+  try {
+    response.json(await getExperience());
+  } catch (error) {
+    next(error);
+  }
 });

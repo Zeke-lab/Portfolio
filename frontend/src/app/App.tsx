@@ -7,14 +7,8 @@ import {
   CheckCircle, Globe, ChevronRight, Send, Zap, Terminal,
   GitBranch, Shield, BarChart3,
 } from "lucide-react";
-import {
-  CASE_STUDY,
-  CERTS,
-  EXPERIENCE,
-  PROJECTS,
-  SKILLS,
-  TECH_GRID,
-} from "./portfolio/service";
+import { fetchPortfolioContent, submitContactMessage, type PortfolioView, type ApiProfile } from "./portfolio/api";
+import AdminDashboard from "./admin/AdminDashboard";
 
 // ─── global scroll helper ─────────────────────────────────────────────────────
 const go = (id: string) =>
@@ -37,8 +31,11 @@ const FF_MONO = { fontFamily: "'JetBrains Mono', monospace" };
 
 function Eyebrow({ text }: { text: string }) {
   return (
-    <div className="inline-flex items-center gap-2 px-3.5 py-1.5 mb-6 rounded-full text-[11px] font-bold tracking-[0.18em] uppercase text-indigo-400 bg-indigo-500/[0.08] border border-indigo-500/20">
-      <span className="w-1.5 h-1.5 rounded-full bg-indigo-400" />
+    <div
+      className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-xs font-semibold tracking-wider uppercase mb-4 shadow-sm backdrop-blur-sm"
+      style={FF_MONO}
+    >
+      <span className="w-1.5 h-1.5 rounded-full bg-indigo-400 animate-pulse" />
       {text}
     </div>
   );
@@ -58,7 +55,7 @@ const DARK_SECTION = "bg-gradient-to-b from-background via-[#050819] to-backgrou
 const DARK_SECTION_ALT = "bg-gradient-to-b from-background via-[#050819] to-background";
 
 // ─── Navigation ───────────────────────────────────────────────────────────────
-function Nav({ dark, setDark }: { dark: boolean; setDark: (v: boolean) => void }) {
+function Nav({ dark, setDark, profile }: { dark: boolean; setDark: (v: boolean) => void; profile?: ApiProfile | null }) {
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
@@ -91,7 +88,7 @@ function Nav({ dark, setDark }: { dark: boolean; setDark: (v: boolean) => void }
         {/* Logo */}
         <button onClick={() => navGo("home")} className="shrink-0 text-[15px] font-bold" style={FF_DISPLAY}>
           <span className="bg-gradient-to-r from-indigo-400 via-violet-400 to-cyan-400 bg-clip-text text-transparent">
-            [YOUR NAME]
+            {profile?.fullName || "Ye Myat Min"}
           </span>
         </button>
 
@@ -170,7 +167,7 @@ function Nav({ dark, setDark }: { dark: boolean; setDark: (v: boolean) => void }
 }
 
 // ─── Hero (asymmetric split) ──────────────────────────────────────────────────
-function Hero() {
+function Hero({ profile }: { profile?: ApiProfile | null }) {
   return (
     <section id="home" className="relative min-h-screen flex items-center overflow-hidden bg-background">
       {/* Background textures */}
@@ -198,7 +195,7 @@ function Hero() {
               className="inline-flex items-center gap-2.5 px-4 py-2 mb-8 bg-emerald-500/[0.08] border border-emerald-500/20 rounded-full text-emerald-400 text-[13px] font-medium"
             >
               <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-              Open to new opportunities
+              {profile?.availability || "Open to new opportunities"}
             </motion.div>
 
             <motion.div
@@ -214,14 +211,14 @@ function Hero() {
                 style={{ ...FF_DISPLAY, fontSize: "clamp(3rem, 7vw, 5.25rem)" }}
               >
                 <span className="bg-gradient-to-br from-indigo-300 via-violet-300 to-cyan-300 bg-clip-text text-transparent">
-                  Ye Myat Min
+                  {profile?.fullName || "Ye Myat Min"}
                 </span>
               </h1>
               <p
                 className="text-xl md:text-2xl font-semibold text-foreground/75 mb-6"
                 style={FF_DISPLAY}
               >
-                Full-Stack Software Engineer
+                {profile?.headline || "Full-Stack Software Engineer"}
               </p>
             </motion.div>
 
@@ -232,7 +229,7 @@ function Hero() {
               className="text-[15px] text-muted-foreground leading-[1.75] max-w-lg mb-9"
               style={FF_BODY}
             >
-              I’m a developer with a Computer Science and software development background, focused on building practical full-stack web applications and learning through hands-on implementation. My work has included React, Node.js, Express, TypeScript, PostgreSQL, Prisma, REST APIs, JWT authentication, Socket.IO, Docker, and Git.
+              {profile?.about || "I’m a developer with a Computer Science and software development background, focused on building practical full-stack web applications and learning through hands-on implementation. My work has included React, Node.js, Express, TypeScript, PostgreSQL, Prisma, REST APIs, JWT authentication, Socket.IO, Docker, and Git."}
             </motion.p>
 
             <motion.div
@@ -302,7 +299,7 @@ function Hero() {
 }
 
 // ─── About ────────────────────────────────────────────────────────────────────
-function About() {
+function About({ profile }: { profile?: ApiProfile | null }) {
   const stats = [
     { value: "Early-career", label: "Developer stage", icon: <Zap size={16} /> },
     { value: "Full-stack", label: "Focus area", icon: <GitBranch size={16} /> },
@@ -311,30 +308,28 @@ function About() {
   ];
 
   return (
-    <section id="about" className="py-28 md:py-36 bg-background">
-      <div className="max-w-[1200px] mx-auto px-6">
+    <section id="about" className="py-28 md:py-36 bg-background relative">
+      <div className="max-w-[1260px] mx-auto px-6">
         <motion.div
           initial={{ opacity: 0, y: 40 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-80px" }}
           transition={{ duration: 0.6 }}
-          className="grid lg:grid-cols-[1fr_1.3fr] gap-16 items-start mb-12"
+          className="grid lg:grid-cols-[1fr_1.35fr] gap-16 items-center mb-20"
         >
-          {/* Portrait */}
-          <div className="relative lg:sticky lg:top-24">
-            <div className="relative w-full max-w-sm mx-auto lg:mx-0">
-              <div className="aspect-[4/5] rounded-3xl overflow-hidden border border-white/[0.08] relative bg-gradient-to-br from-indigo-950 via-[#08091f] to-violet-950">
-                <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/20 via-transparent to-violet-500/15" />
-                <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-40 h-40 bg-indigo-500/25 rounded-full blur-3xl" />
-                <div className="absolute bottom-1/3 left-1/2 -translate-x-1/2 translate-y-1/2 w-32 h-32 bg-violet-500/20 rounded-full blur-3xl" />
-                <div className="absolute inset-0 flex flex-col items-center justify-center">
+          {/* Card / Image stand-in */}
+          <div className="relative">
+            <div className="relative rounded-3xl overflow-hidden bg-gradient-to-br from-indigo-950/60 via-violet-950/40 to-background border border-indigo-500/20 p-8 shadow-2xl shadow-indigo-500/10">
+              <div className="aspect-[4/3] rounded-2xl bg-gradient-to-br from-indigo-600/20 to-violet-600/20 border border-white/[0.08] flex items-center justify-center p-8 text-center relative overflow-hidden">
+                <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-indigo-500/20 via-transparent to-transparent" />
+                <div className="relative z-10 flex flex-col items-center gap-3">
                   <div
-                    className="w-24 h-24 rounded-2xl bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center text-3xl font-black text-white mb-3 shadow-2xl shadow-indigo-500/40"
+                    className="w-20 h-20 rounded-2xl bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center text-white text-3xl font-extrabold shadow-xl shadow-indigo-500/30"
                     style={FF_DISPLAY}
                   >
-                    YM
+                    {profile?.fullName ? profile.fullName.split(" ").map((n) => n[0]).join("") : "YM"}
                   </div>
-                  <span className="text-white/40 text-xs" style={FF_MONO}>[YOUR EMAIL]</span>
+                  <span className="text-white/40 text-xs" style={FF_MONO}>{profile?.email || "yemyatmin192@gmail.com"}</span>
                 </div>
               </div>
               {/* Accent corners */}
@@ -361,7 +356,7 @@ function About() {
               </span>
             </h2>
             <p className="text-[15px] text-muted-foreground leading-[1.8] mb-4" style={FF_BODY}>
-              I’m a developer with a Computer Science and software development background, focused on building full-stack web applications and learning through hands-on implementation.
+              {profile?.about || "I’m a developer with a Computer Science and software development background, focused on building full-stack web applications and learning through hands-on implementation."}
             </p>
             <p className="text-[15px] text-muted-foreground leading-[1.8] mb-8" style={FF_BODY}>
               My work has included React, Node.js, Express, TypeScript, PostgreSQL, Prisma, REST APIs, JWT authentication, Socket.IO, Docker, and Git. I’ve also contributed to a Myanmar POS system, an inventory management system, and an AI teaching companion project.
@@ -429,8 +424,8 @@ function About() {
 }
 
 // ─── Skills (interactive tabs) ────────────────────────────────────────────────
-function Skills({ dark }: { dark: boolean }) {
-  const cats = Object.keys(SKILLS);
+function Skills({ dark, skills }: { dark: boolean; skills: PortfolioView["skills"] }) {
+  const cats = Object.keys(skills);
   const [active, setActive] = useState(cats[0]);
   const sectionClass = dark ? DARK_SECTION_ALT : LIGHT_SECTION_ALT;
 
@@ -489,15 +484,15 @@ function Skills({ dark }: { dark: boolean }) {
           transition={{ duration: 0.3 }}
           className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3"
         >
-          {SKILLS[active].chips.map((chip, i) => (
+          {skills[active].chips.map((chip, i) => (
             <motion.div
               key={chip}
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.2, delay: i * 0.04 }}
-              className={`flex items-center gap-3 px-4 py-3.5 bg-white/[0.03] border ${SKILLS[active].border} rounded-xl hover:bg-white/[0.06] transition-all cursor-default`}
+              className={`flex items-center gap-3 px-4 py-3.5 bg-white/[0.03] border ${skills[active].border} rounded-xl hover:bg-white/[0.06] transition-all cursor-default`}
             >
-              <span className={`w-2 h-2 rounded-full shrink-0 ${SKILLS[active].dot}`} />
+              <span className={`w-2 h-2 rounded-full shrink-0 ${skills[active].dot}`} />
               <span className="text-sm text-foreground/80" style={FF_MONO}>{chip}</span>
             </motion.div>
           ))}
@@ -508,7 +503,7 @@ function Skills({ dark }: { dark: boolean }) {
 }
 
 // ─── Projects ─────────────────────────────────────────────────────────────────
-function Projects({ dark }: { dark: boolean }) {
+function Projects({ dark, projects }: { dark: boolean; projects: PortfolioView["projects"] }) {
   const sectionClass = dark ? DARK_SECTION : "bg-[#f7f9ff]";
 
   return (
@@ -534,7 +529,7 @@ function Projects({ dark }: { dark: boolean }) {
         </motion.div>
 
         <div className="space-y-8">
-          {PROJECTS.map((p, i) => (
+          {projects.map((p, i) => (
             <motion.div
               key={p.title}
               initial={{ opacity: 0, y: 40 }}
@@ -574,18 +569,25 @@ function Projects({ dark }: { dark: boolean }) {
                     >
                       {p.title}
                     </h3>
-                    <p className="text-[14px] text-muted-foreground leading-[1.75] mb-5" style={FF_BODY}>
-                      {p.desc}
+                    <p className="text-[14px] text-muted-foreground leading-[1.75] mb-3" style={FF_BODY}>
+                      {p.summary || p.desc}
                     </p>
+                    {p.description && p.description !== p.summary && (
+                      <p className="text-[13.5px] text-muted-foreground/80 leading-[1.65] mb-5" style={FF_BODY}>
+                        {p.description}
+                      </p>
+                    )}
 
-                    <ul className="space-y-2 mb-6">
-                      {p.features.map((f) => (
-                        <li key={f} className="flex items-start gap-2.5 text-[13.5px] text-muted-foreground" style={FF_BODY}>
-                          <CheckCircle size={14} className="text-indigo-400 mt-0.5 shrink-0" />
-                          {f}
-                        </li>
-                      ))}
-                    </ul>
+                    {p.features.length > 0 && (
+                      <ul className="space-y-2 mb-6">
+                        {p.features.map((f) => (
+                          <li key={f} className="flex items-start gap-2.5 text-[13.5px] text-muted-foreground" style={FF_BODY}>
+                            <CheckCircle size={14} className="text-indigo-400 mt-0.5 shrink-0" />
+                            {f}
+                          </li>
+                        ))}
+                      </ul>
+                    )}
 
                     <div className="flex flex-wrap gap-2 mb-6">
                       {p.tech.map((t) => (
@@ -600,12 +602,30 @@ function Projects({ dark }: { dark: boolean }) {
                     </div>
 
                     <div className="flex flex-wrap gap-2">
-                      <a href="#" className="inline-flex items-center gap-1.5 px-4 py-2 text-[13px] font-semibold bg-gradient-to-r from-indigo-500 to-violet-600 text-white rounded-xl hover:opacity-90 transition-all" style={FF_DISPLAY}>
-                        <Globe size={13} /> Live Demo
-                      </a>
-                      <a href="#" className="inline-flex items-center gap-1.5 px-4 py-2 text-[13px] text-muted-foreground border border-white/[0.1] rounded-xl hover:bg-white/[0.05] hover:text-foreground transition-all" style={FF_DISPLAY}>
-                        <Github size={13} /> GitHub
-                      </a>
+                      {p.liveUrl ? (
+                        <a
+                          href={p.liveUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1.5 px-4 py-2 text-[13px] font-semibold bg-gradient-to-r from-indigo-500 to-violet-600 text-white rounded-xl hover:opacity-90 transition-all shadow-md shadow-indigo-500/20"
+                          style={FF_DISPLAY}
+                        >
+                          <Globe size={13} /> Live Demo
+                        </a>
+                      ) : null}
+
+                      {p.repoUrl ? (
+                        <a
+                          href={p.repoUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1.5 px-4 py-2 text-[13px] text-muted-foreground border border-white/[0.1] rounded-xl hover:bg-white/[0.05] hover:text-foreground transition-all"
+                          style={FF_DISPLAY}
+                        >
+                          <Github size={13} /> GitHub
+                        </a>
+                      ) : null}
+
                       <button onClick={() => go("casestudy")} className="inline-flex items-center gap-1.5 px-4 py-2 text-[13px] text-muted-foreground border border-white/[0.1] rounded-xl hover:bg-white/[0.05] hover:text-foreground transition-all" style={FF_DISPLAY}>
                         <ExternalLink size={13} /> Case Study
                       </button>
@@ -622,7 +642,7 @@ function Projects({ dark }: { dark: boolean }) {
 }
 
 // ─── Case Study ───────────────────────────────────────────────────────────────
-function CaseStudy({ dark }: { dark: boolean }) {
+function CaseStudy({ dark, caseStudy }: { dark: boolean; caseStudy: PortfolioView["caseStudy"] }) {
   const sectionClass = dark ? DARK_SECTION_ALT : LIGHT_SECTION_ALT;
 
   return (
@@ -653,7 +673,7 @@ function CaseStudy({ dark }: { dark: boolean }) {
 
         {/* Steps */}
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4 mb-10">
-          {CASE_STUDY.map((step, i) => (
+          {caseStudy.map((step, i) => (
             <motion.div
               key={step.phase}
               initial={{ opacity: 0, y: 30 }}
@@ -724,7 +744,7 @@ function CaseStudy({ dark }: { dark: boolean }) {
 }
 
 // ─── Experience ───────────────────────────────────────────────────────────────
-function Experience({ dark }: { dark: boolean }) {
+function Experience({ dark, experience }: { dark: boolean; experience: PortfolioView["experience"] }) {
   const sectionClass = dark ? DARK_SECTION : "bg-[#f7f9ff]";
 
   return (
@@ -750,7 +770,7 @@ function Experience({ dark }: { dark: boolean }) {
           <div className="absolute left-[27px] top-8 bottom-8 w-px bg-gradient-to-b from-indigo-500/35 via-violet-500/25 to-transparent hidden md:block" />
 
           <div className="space-y-8">
-            {EXPERIENCE.map((exp, i) => (
+            {experience.map((exp, i) => (
               <motion.div
                 key={exp.company}
                 initial={{ opacity: 0, x: -24 }}
@@ -829,8 +849,9 @@ function Experience({ dark }: { dark: boolean }) {
 }
 
 // ─── Education ────────────────────────────────────────────────────────────────
-function Education({ dark }: { dark: boolean }) {
+function Education({ dark, education, certs }: { dark: boolean; education: PortfolioView["education"]; certs: PortfolioView["certs"] }) {
   const sectionClass = dark ? DARK_SECTION_ALT : LIGHT_SECTION_ALT;
+  const primaryEducation = education[0];
 
   return (
     <section id="education" className={`py-28 md:py-36 ${sectionClass}`}>
@@ -870,19 +891,41 @@ function Education({ dark }: { dark: boolean }) {
                 </div>
               </div>
 
-              <h3 className="text-[22px] font-extrabold text-foreground mb-1" style={FF_DISPLAY}>[YOUR DEGREE]</h3>
-              <p className="text-indigo-400 font-semibold text-[14px] mb-1" style={FF_DISPLAY}>[YOUR UNIVERSITY]</p>
-              <p className="text-[12px] text-muted-foreground mb-5" style={FF_MONO}>[YOUR DATES]</p>
+              {primaryEducation ? (
+                <>
+                  <h3 className="text-[22px] font-extrabold text-foreground mb-1" style={FF_DISPLAY}>{primaryEducation.degree}</h3>
+                  <p className="text-indigo-400 font-semibold text-[14px] mb-1" style={FF_DISPLAY}>{primaryEducation.university}</p>
+                  <p className="text-[12px] text-muted-foreground mb-5" style={FF_MONO}>{primaryEducation.period}</p>
 
-              <p className="text-[14px] text-muted-foreground leading-[1.75] mb-5" style={FF_BODY}>
-                Replace this section with your actual academic background, focus areas, and achievements.
-              </p>
+                  <p className="text-[14px] text-muted-foreground leading-[1.75] mb-5" style={FF_BODY}>
+                    {primaryEducation.description}
+                  </p>
 
-              <div className="flex flex-wrap gap-2">
-                {["[YOUR FOCUS 1]", "[YOUR FOCUS 2]", "[YOUR FOCUS 3]"].map((s) => (
-                  <span key={s} className="px-2.5 py-1 text-[12px] text-blue-300 bg-blue-500/[0.07] border border-blue-500/20 rounded-lg" style={FF_MONO}>{s}</span>
-                ))}
-              </div>
+                  {primaryEducation.focus.length > 0 && (
+                    <div className="flex flex-wrap gap-2">
+                      {primaryEducation.focus.map((s) => (
+                        <span key={s} className="px-2.5 py-1 text-[12px] text-blue-300 bg-blue-500/[0.07] border border-blue-500/20 rounded-lg" style={FF_MONO}>{s}</span>
+                      ))}
+                    </div>
+                  )}
+                </>
+              ) : (
+                <>
+                  <h3 className="text-[22px] font-extrabold text-foreground mb-1" style={FF_DISPLAY}>[YOUR DEGREE]</h3>
+                  <p className="text-indigo-400 font-semibold text-[14px] mb-1" style={FF_DISPLAY}>[YOUR UNIVERSITY]</p>
+                  <p className="text-[12px] text-muted-foreground mb-5" style={FF_MONO}>[YOUR DATES]</p>
+
+                  <p className="text-[14px] text-muted-foreground leading-[1.75] mb-5" style={FF_BODY}>
+                    Replace this section with your actual academic background, focus areas, and achievements.
+                  </p>
+
+                  <div className="flex flex-wrap gap-2">
+                    {["[YOUR FOCUS 1]", "[YOUR FOCUS 2]", "[YOUR FOCUS 3]"].map((s) => (
+                      <span key={s} className="px-2.5 py-1 text-[12px] text-blue-300 bg-blue-500/[0.07] border border-blue-500/20 rounded-lg" style={FF_MONO}>{s}</span>
+                    ))}
+                  </div>
+                </>
+              )}
             </Glass>
           </motion.div>
 
@@ -905,7 +948,7 @@ function Education({ dark }: { dark: boolean }) {
               </div>
 
               <div className="space-y-3">
-                {CERTS.map((cert) => (
+                {certs.map((cert) => (
                   <div
                     key={cert.title}
                     className="flex items-center justify-between gap-4 p-4 bg-white/[0.02] border border-white/[0.06] rounded-xl hover:border-white/[0.1] hover:bg-white/[0.04] transition-all"
@@ -932,7 +975,7 @@ function Education({ dark }: { dark: boolean }) {
 }
 
 // ─── Tech Stack ───────────────────────────────────────────────────────────────
-function TechStack({ dark }: { dark: boolean }) {
+function TechStack({ dark, techGrid }: { dark: boolean; techGrid: PortfolioView["techGrid"] }) {
   const sectionClass = dark ? DARK_SECTION : "bg-[#f7f9ff]";
 
   return (
@@ -958,7 +1001,7 @@ function TechStack({ dark }: { dark: boolean }) {
         </motion.div>
 
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
-          {Object.entries(TECH_GRID).map(([cat, { color, dot, items }], i) => (
+          {Object.entries(techGrid).map(([cat, { color, dot, items }], i) => (
             <motion.div
               key={cat}
               initial={{ opacity: 0, y: 24 }}
@@ -988,31 +1031,39 @@ function TechStack({ dark }: { dark: boolean }) {
 }
 
 // ─── Contact ──────────────────────────────────────────────────────────────────
-function Contact({ dark }: { dark: boolean }) {
+function Contact({ dark, profile }: { dark: boolean; profile?: ApiProfile | null }) {
   const [form, setForm] = useState({ name: "", email: "", subject: "", message: "" });
-  const [status, setStatus] = useState<"idle" | "sending" | "sent">("idle");
+  const [status, setStatus] = useState<"idle" | "sending" | "sent" | "error">("idle");
 
   const upd = (k: keyof typeof form) =>
     (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) =>
       setForm((f) => ({ ...f, [k]: e.target.value }));
 
-  const submit = (e: React.FormEvent) => {
+  const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     setStatus("sending");
-    setTimeout(() => {
+    try {
+      await submitContactMessage(form);
       setStatus("sent");
       setForm({ name: "", email: "", subject: "", message: "" });
-    }, 1600);
+    } catch {
+      setStatus("error");
+    }
   };
 
   const inputCls =
     "w-full px-4 py-3 text-[14px] bg-white/[0.04] border border-white/[0.09] rounded-xl text-foreground placeholder:text-muted-foreground/40 focus:outline-none focus:border-indigo-500/50 focus:ring-2 focus:ring-indigo-500/15 transition-all";
 
+  const emailVal = profile?.email || "yemyatmin192@gmail.com";
+  const linkedinVal = profile?.linkedinUrl || "https://www.linkedin.com/in/ye-myat-min-5904b91ba";
+  const githubVal = profile?.githubUrl || "https://github.com/Zeke-lab";
+  const locationVal = profile?.location || "Chiang Rai, Thailand";
+
   const contactItems = [
-    { icon: <Mail size={17} />, label: "Email", value: "[YOUR EMAIL]", href: "mailto:[YOUR EMAIL]" },
-    { icon: <Linkedin size={17} />, label: "LinkedIn", value: "[YOUR LINKEDIN]", href: "https://www.linkedin.com/in/[YOUR LINKEDIN]" },
-    { icon: <Github size={17} />, label: "GitHub", value: "[YOUR GITHUB]", href: "https://github.com/[YOUR GITHUB]" },
-    { icon: <MapPin size={17} />, label: "Location", value: "[YOUR LOCATION]", href: null },
+    { icon: <Mail size={17} />, label: "Email", value: emailVal, href: `mailto:${emailVal}` },
+    { icon: <Linkedin size={17} />, label: "LinkedIn", value: linkedinVal, href: linkedinVal },
+    { icon: <Github size={17} />, label: "GitHub", value: githubVal, href: githubVal },
+    { icon: <MapPin size={17} />, label: "Location", value: locationVal, href: null },
   ];
 
   return (
@@ -1117,6 +1168,9 @@ function Contact({ dark }: { dark: boolean }) {
                 </div>
               ) : (
                 <form onSubmit={submit} className="space-y-4">
+                  {status === "error" && (
+                    <p role="alert" className="text-sm text-red-400">Unable to send your message. Please try again.</p>
+                  )}
                   <div className="grid sm:grid-cols-2 gap-4">
                     <div>
                       <label htmlFor="name" className="block text-[12px] font-semibold text-muted-foreground mb-1.5 uppercase tracking-wide" style={FF_BODY}>
@@ -1133,7 +1187,7 @@ function Contact({ dark }: { dark: boolean }) {
                         Email
                       </label>
                       <input
-                        id="email" type="email" required placeholder="[YOUR EMAIL]"
+                        id="email" type="email" required placeholder="yemyatmin192@gmail.com"
                         value={form.email} onChange={upd("email")}
                         className={inputCls} style={FF_BODY}
                       />
@@ -1209,7 +1263,7 @@ function Footer() {
   const socials = [
     { icon: <Github size={17} />, href: "#", label: "GitHub" },
     { icon: <Linkedin size={17} />, href: "#", label: "LinkedIn" },
-    { icon: <Mail size={17} />, href: "mailto:[YOUR EMAIL]", label: "Email" },
+    { icon: <Mail size={17} />, href: "mailto:yemyatmin192@gmail.com", label: "Email" },
     { icon: <Globe size={17} />, href: "#", label: "Website" },
   ];
 
@@ -1264,24 +1318,108 @@ function Footer() {
 // ─── App ──────────────────────────────────────────────────────────────────────
 export default function App() {
   const [dark, setDark] = useState(true);
+  const [portfolio, setPortfolio] = useState<PortfolioView | null>(null);
+  const [loadError, setLoadError] = useState<string | null>(null);
 
   useEffect(() => {
     document.documentElement.classList.toggle("dark", dark);
     document.documentElement.style.scrollBehavior = "smooth";
   }, [dark]);
 
+  useEffect(() => {
+    fetchPortfolioContent().then(setPortfolio).catch((error: unknown) => {
+      setLoadError(error instanceof Error ? error.message : "Unable to load portfolio content.");
+    });
+  }, []);
+
+  const currentPath = window.location.pathname;
+  const isAdminRoute = currentPath === "/admin" || currentPath.startsWith("/admin/") || new URLSearchParams(window.location.search).get("admin") === "1";
+
+  if (isAdminRoute) {
+    return <AdminDashboard />;
+  }
+
+  if (loadError) return <main className="min-h-screen grid place-items-center bg-background text-foreground px-6"><p>{loadError} Start the backend and try again.</p></main>;
+  // if (!portfolio) return <main className="min-h-screen grid place-items-center bg-background text-foreground"><p>Loading portfolio…</p></main>;
+
+  if (!portfolio) {
+    return (
+      <main className="relative min-h-screen overflow-hidden bg-background text-foreground">
+        <div className="absolute inset-0 opacity-80">
+          <div className="absolute left-[-12%] top-[-8%] h-[26rem] w-[26rem] rounded-full bg-indigo-500/20 blur-[120px]" />
+          <div className="absolute right-[-8%] top-[18%] h-[20rem] w-[20rem] rounded-full bg-violet-500/20 blur-[110px]" />
+          <div className="absolute bottom-[-12%] left-[22%] h-[22rem] w-[22rem] rounded-full bg-cyan-500/10 blur-[120px]" />
+        </div>
+
+        <div className="relative z-10 mx-auto max-w-6xl px-6 py-20">
+          <div className="mb-8 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="h-10 w-10 animate-pulse rounded-xl bg-gradient-to-br from-indigo-500/60 to-violet-500/60 shadow-lg shadow-indigo-500/20" />
+              <div className="h-4 w-28 animate-pulse rounded-full bg-white/10" />
+            </div>
+            <div className="h-10 w-10 animate-pulse rounded-full bg-white/10" />
+          </div>
+
+          <div className="mb-10 flex items-center gap-3">
+            <div className="h-2.5 w-2.5 rounded-full bg-emerald-400 animate-pulse" />
+            <span className="text-[11px] font-semibold uppercase tracking-[0.22em] text-emerald-300/80">Loading</span>
+          </div>
+
+          <div className="mb-10 space-y-5">
+            <div className="h-4 w-36 animate-pulse rounded-full bg-emerald-500/20" />
+            <div className="h-16 w-3/4 animate-pulse rounded-2xl bg-white/10" />
+            <div className="h-7 w-1/2 animate-pulse rounded-xl bg-white/10" />
+            <div className="h-6 w-2/5 animate-pulse rounded-full bg-white/10" />
+          </div>
+
+          <div className="grid gap-6 md:grid-cols-2">
+            <div className="space-y-4 rounded-[28px] border border-white/10 bg-white/[0.03] p-6 shadow-2xl shadow-black/20">
+              <div className="h-52 w-full animate-pulse rounded-2xl bg-gradient-to-br from-white/10 via-white/5 to-transparent" />
+              <div className="h-5 w-2/3 animate-pulse rounded-full bg-white/10" />
+              <div className="h-4 w-full animate-pulse rounded-full bg-white/10" />
+              <div className="h-4 w-4/5 animate-pulse rounded-full bg-white/10" />
+              <div className="flex gap-2 pt-2">
+                <div className="h-8 w-20 animate-pulse rounded-full bg-indigo-500/20" />
+                <div className="h-8 w-24 animate-pulse rounded-full bg-violet-500/20" />
+              </div>
+            </div>
+
+            <div className="space-y-4 rounded-[28px] border border-white/10 bg-white/[0.03] p-6 shadow-2xl shadow-black/20">
+              <div className="flex items-center gap-3">
+                <div className="h-12 w-12 animate-pulse rounded-full bg-white/10" />
+                <div className="space-y-2">
+                  <div className="h-4 w-28 animate-pulse rounded-full bg-white/10" />
+                  <div className="h-3 w-20 animate-pulse rounded-full bg-white/10" />
+                </div>
+              </div>
+              <div className="space-y-3 pt-2">
+                <div className="h-4 w-full animate-pulse rounded-full bg-white/10" />
+                <div className="h-4 w-5/6 animate-pulse rounded-full bg-white/10" />
+                <div className="h-4 w-4/6 animate-pulse rounded-full bg-white/10" />
+              </div>
+              <div className="grid gap-2 pt-2 sm:grid-cols-2">
+                <div className="h-14 animate-pulse rounded-2xl bg-white/10" />
+                <div className="h-14 animate-pulse rounded-2xl bg-white/10" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-background text-foreground antialiased" style={FF_BODY}>
-      <Nav dark={dark} setDark={setDark} />
-      <Hero />
-      <About />
-      <Skills dark={dark} />
-      <Projects dark={dark} />
-      <CaseStudy dark={dark} />
-      <Experience dark={dark} />
-      <Education dark={dark} />
-      <TechStack dark={dark} />
-      <Contact dark={dark} />
+      <Nav dark={dark} setDark={setDark} profile={portfolio.profile} />
+      <Hero profile={portfolio.profile} />
+      <About profile={portfolio.profile} />
+      <Skills dark={dark} skills={portfolio.skills} />
+      <Projects dark={dark} projects={portfolio.projects} />
+      <CaseStudy dark={dark} caseStudy={portfolio.caseStudy} />
+      <Experience dark={dark} experience={portfolio.experience} />
+      <Education dark={dark} education={portfolio.education} certs={portfolio.certs} />
+      <TechStack dark={dark} techGrid={portfolio.techGrid} />
+      <Contact dark={dark} profile={portfolio.profile} />
       <Footer />
     </div>
   );

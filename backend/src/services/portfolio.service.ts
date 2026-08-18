@@ -3,17 +3,17 @@ import { getPortfolioRepository } from "../repositories/portfolio.repository.js"
 const portfolioRepository = getPortfolioRepository();
 
 export function getPortfolioContent() {
-  return portfolioRepository;
+  return portfolioRepository.getContent();
 }
 
 export function getProjects() {
-  return portfolioRepository.projects;
+  return portfolioRepository.getProjects();
 }
 
 export function getSkills() {
-  return portfolioRepository.skills;
+  return portfolioRepository.getSkills();
 }
 
 export function getExperience() {
-  return portfolioRepository.experience;
+  return portfolioRepository.getExperience();
 }
