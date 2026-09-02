@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import type { ProfileForm } from "../types";
 
 type Props = {
@@ -12,10 +12,15 @@ type Props = {
 };
 
 export function ProfileSection({ form, hasProfile, submitting, onChange, onSave, onDelete, onUploadFile }: Props) {
+  const [isEditing, setIsEditing] = useState(!hasProfile);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const [uploadingDocument, setUploadingDocument] = useState(false);
   const avatarInputRef = useRef<HTMLInputElement>(null);
   const documentInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    setIsEditing(!hasProfile);
+  }, [hasProfile]);
 
   const handleAvatarFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -55,30 +60,42 @@ export function ProfileSection({ form, hasProfile, submitting, onChange, onSave,
         <h2 className="text-xl font-bold">Profile</h2>
         <div className="flex items-center gap-2">
           {hasProfile && (
-            <button
-              type="button"
-              onClick={onDelete}
-              disabled={submitting}
-              className="rounded-xl border border-red-300/40 bg-red-500/10 px-4 py-2 text-sm font-semibold text-red-200 disabled:opacity-60"
-            >
-              Delete profile
+            isEditing ? (
+              <button
+                type="button"
+                onClick={onDelete}
+                disabled={submitting}
+                className="rounded-xl border border-red-300/40 bg-red-500/10 px-4 py-2 text-sm font-semibold text-red-200 disabled:opacity-60"
+              >
+                Delete profile
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={() => setIsEditing(true)}
+                className="rounded-xl border border-indigo-300/40 bg-indigo-500/10 px-4 py-2 text-sm font-semibold text-indigo-200 hover:bg-indigo-500/20"
+              >
+                Edit profile
+              </button>
+            )
+          )}
+          {isEditing && (
+            <button type="button" onClick={onSave} disabled={submitting} className="rounded-xl bg-gradient-to-r from-indigo-500 to-violet-500 px-4 py-2 font-semibold text-white disabled:opacity-60">
+              {submitting ? "Saving..." : hasProfile ? "Update profile" : "Create profile"}
             </button>
           )}
-          <button type="button" onClick={onSave} disabled={submitting} className="rounded-xl bg-gradient-to-r from-indigo-500 to-violet-500 px-4 py-2 font-semibold text-white disabled:opacity-60">
-            {submitting ? "Saving..." : hasProfile ? "Update profile" : "Create profile"}
-          </button>
         </div>
       </div>
 
       <div className="grid gap-4 md:grid-cols-2">
         <label className="block text-sm text-slate-300 md:col-span-2">
           Full name
-          <input value={form.fullName} onChange={(event) => onChange("fullName", event.target.value)} className="mt-2 w-full rounded-xl border border-white/10 bg-slate-900/80 px-3 py-2.5 text-white" />
+          <input disabled={!isEditing} value={form.fullName} onChange={(event) => onChange("fullName", event.target.value)} className="mt-2 w-full rounded-xl border border-white/10 bg-slate-900/80 px-3 py-2.5 text-white disabled:cursor-default disabled:opacity-70" />
         </label>
 
         <label className="block text-sm text-slate-300 md:col-span-2">
           Headline
-          <input value={form.headline} onChange={(event) => onChange("headline", event.target.value)} className="mt-2 w-full rounded-xl border border-white/10 bg-slate-900/80 px-3 py-2.5 text-white" />
+          <input disabled={!isEditing} value={form.headline} onChange={(event) => onChange("headline", event.target.value)} className="mt-2 w-full rounded-xl border border-white/10 bg-slate-900/80 px-3 py-2.5 text-white disabled:cursor-default disabled:opacity-70" />
         </label>
 
         <div className="block text-sm text-slate-300 md:col-span-2">
@@ -92,56 +109,61 @@ export function ProfileSection({ form, hasProfile, submitting, onChange, onSave,
               </div>
             )}
             <div className="flex-1">
-              <input value={form.avatarUrl} onChange={(event) => onChange("avatarUrl", event.target.value)} placeholder="File URL or upload photo below..." className="w-full rounded-xl border border-white/10 bg-slate-900/80 px-3 py-2 text-white text-sm" />
-              <div className="mt-2 flex items-center gap-2">
+              <input disabled={!isEditing} value={form.avatarUrl} onChange={(event) => onChange("avatarUrl", event.target.value)} placeholder="File URL or upload photo below..." className="w-full rounded-xl border border-white/10 bg-slate-900/80 px-3 py-2 text-white text-sm disabled:cursor-default disabled:opacity-70" />
+              {isEditing && <div className="mt-2 flex items-center gap-2">
                 <input ref={avatarInputRef} type="file" accept="image/*" onChange={handleAvatarFileChange} className="hidden" id="avatar-photo-upload" />
                 <label htmlFor="avatar-photo-upload" className="cursor-pointer rounded-lg border border-indigo-500/30 bg-indigo-500/10 px-3 py-1.5 text-xs font-semibold text-indigo-300 hover:bg-indigo-500/20">
                   {uploadingAvatar ? "Uploading photo..." : "📷 Upload Photo File"}
                 </label>
-              </div>
+              </div>}
             </div>
           </div>
         </div>
 
         <label className="block text-sm text-slate-300">
           Email
-          <input value={form.email} onChange={(event) => onChange("email", event.target.value)} className="mt-2 w-full rounded-xl border border-white/10 bg-slate-900/80 px-3 py-2.5 text-white" />
+          <input disabled={!isEditing} value={form.email} onChange={(event) => onChange("email", event.target.value)} className="mt-2 w-full rounded-xl border border-white/10 bg-slate-900/80 px-3 py-2.5 text-white disabled:cursor-default disabled:opacity-70" />
         </label>
 
         <label className="block text-sm text-slate-300">
           Location
-          <input value={form.location} onChange={(event) => onChange("location", event.target.value)} className="mt-2 w-full rounded-xl border border-white/10 bg-slate-900/80 px-3 py-2.5 text-white" />
+          <input disabled={!isEditing} value={form.location} onChange={(event) => onChange("location", event.target.value)} className="mt-2 w-full rounded-xl border border-white/10 bg-slate-900/80 px-3 py-2.5 text-white disabled:cursor-default disabled:opacity-70" />
         </label>
 
         <label className="block text-sm text-slate-300">
           Availability
-          <input value={form.availability} onChange={(event) => onChange("availability", event.target.value)} className="mt-2 w-full rounded-xl border border-white/10 bg-slate-900/80 px-3 py-2.5 text-white" />
+          <input disabled={!isEditing} value={form.availability} onChange={(event) => onChange("availability", event.target.value)} className="mt-2 w-full rounded-xl border border-white/10 bg-slate-900/80 px-3 py-2.5 text-white disabled:cursor-default disabled:opacity-70" />
+        </label>
+
+        <label className="block text-sm text-slate-300 md:col-span-2">
+          Short introduction for Hero
+          <textarea disabled={!isEditing} value={form.intro} onChange={(event) => onChange("intro", event.target.value)} rows={3} placeholder="A concise introduction shown in the Hero section" className="mt-2 w-full rounded-xl border border-white/10 bg-slate-900/80 px-3 py-2.5 text-white disabled:cursor-default disabled:opacity-70" />
         </label>
 
         <label className="block text-sm text-slate-300">
           GitHub URL
-          <input value={form.github} onChange={(event) => onChange("github", event.target.value)} className="mt-2 w-full rounded-xl border border-white/10 bg-slate-900/80 px-3 py-2.5 text-white" />
+          <input disabled={!isEditing} value={form.github} onChange={(event) => onChange("github", event.target.value)} className="mt-2 w-full rounded-xl border border-white/10 bg-slate-900/80 px-3 py-2.5 text-white disabled:cursor-default disabled:opacity-70" />
         </label>
 
         <label className="block text-sm text-slate-300">
           LinkedIn URL
-          <input value={form.linkedin} onChange={(event) => onChange("linkedin", event.target.value)} className="mt-2 w-full rounded-xl border border-white/10 bg-slate-900/80 px-3 py-2.5 text-white" />
+          <input disabled={!isEditing} value={form.linkedin} onChange={(event) => onChange("linkedin", event.target.value)} className="mt-2 w-full rounded-xl border border-white/10 bg-slate-900/80 px-3 py-2.5 text-white disabled:cursor-default disabled:opacity-70" />
         </label>
 
         <div className="block text-sm text-slate-300">
           <span>Resume Document / Website URL</span>
-          <input value={form.website} onChange={(event) => onChange("website", event.target.value)} placeholder="https://... or upload PDF document" className="mt-2 w-full rounded-xl border border-white/10 bg-slate-900/80 px-3 py-2.5 text-white" />
-          <div className="mt-2">
+          <input disabled={!isEditing} value={form.website} onChange={(event) => onChange("website", event.target.value)} placeholder="https://... or upload PDF document" className="mt-2 w-full rounded-xl border border-white/10 bg-slate-900/80 px-3 py-2.5 text-white disabled:cursor-default disabled:opacity-70" />
+          {isEditing && <div className="mt-2">
             <input ref={documentInputRef} type="file" accept=".pdf,.doc,.docx" onChange={handleDocumentFileChange} className="hidden" id="resume-document-upload" />
             <label htmlFor="resume-document-upload" className="cursor-pointer rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-3 py-1.5 text-xs font-semibold text-emerald-300 hover:bg-emerald-500/20">
               {uploadingDocument ? "Uploading document..." : "📄 Upload Document File (PDF/DOC)"}
             </label>
-          </div>
+          </div>}
         </div>
 
         <label className="block text-sm text-slate-300 md:col-span-2">
-          About
-          <textarea value={form.about} onChange={(event) => onChange("about", event.target.value)} rows={4} className="mt-2 w-full rounded-xl border border-white/10 bg-slate-900/80 px-3 py-2.5 text-white" />
+          Detailed About biography
+          <textarea disabled={!isEditing} value={form.about} onChange={(event) => onChange("about", event.target.value)} rows={6} placeholder="Your background, strengths, experience, and professional focus" className="mt-2 w-full rounded-xl border border-white/10 bg-slate-900/80 px-3 py-2.5 text-white disabled:cursor-default disabled:opacity-70" />
         </label>
       </div>
     </section>

@@ -14,6 +14,7 @@ export const profileCreateSchema = z.object({
   email: optionalString,
   location: optionalString,
   availability: optionalString,
+  intro: optionalString,
   about: optionalString,
   github: optionalString,
   linkedin: optionalString,

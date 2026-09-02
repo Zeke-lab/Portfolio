@@ -77,6 +77,7 @@ export async function createProfile(payload: ProfileInput) {
       email: payload.email || null,
       location: payload.location || null,
       availability: payload.availability || null,
+      intro: payload.intro || null,
       about: payload.about || null,
       status: "published",
       socialLinks: {
@@ -104,6 +105,7 @@ export async function updateProfile(id: string, payload: ProfileInput) {
       email: payload.email || null,
       location: payload.location || null,
       availability: payload.availability || null,
+      intro: payload.intro || null,
       about: payload.about || null,
       socialLinks: {
         deleteMany: {},
@@ -358,43 +360,40 @@ export async function getCurrentUser(userId: string) {
 }
 
 export async function getAdminContent() {
-  const profile = await db.profile.findFirst({
-    where: { status: "published" },
-    include: {
-      socialLinks: { orderBy: { order: "asc" } },
-      resumes: { orderBy: [{ featured: "desc" }, { createdAt: "asc" }] },
-    },
-  });
-
-  const projects = await db.project.findMany({
-    where: { status: "published" },
-    orderBy: [{ featured: "desc" }, { createdAt: "asc" }],
-    include: {
-      technologies: { orderBy: { order: "asc" } },
-      caseStudy: true,
-    },
-  });
-
-  const skills = await db.skill.findMany({
-    where: { status: "published" },
-    orderBy: [{ category: "asc" }, { featured: "desc" }, { createdAt: "asc" }],
-  });
-
-  const experience = await db.experience.findMany({
-    where: { status: "published" },
-    orderBy: [{ featured: "desc" }, { startDate: "desc" }],
-    include: { bullets: { orderBy: { order: "asc" } } },
-  });
-
-  const education = await db.education.findMany({
-    where: { status: "published" },
-    orderBy: [{ featured: "desc" }, { endDate: "desc" }],
-  });
-
-  const certifications = await db.certification.findMany({
-    where: { status: "published" },
-    orderBy: [{ featured: "desc" }, { issuedAt: "desc" }],
-  });
+  const [profile, projects, skills, experience, education, certifications] = await Promise.all([
+    db.profile.findFirst({
+      where: { status: "published" },
+      include: {
+        socialLinks: { orderBy: { order: "asc" } },
+        resumes: { orderBy: [{ featured: "desc" }, { createdAt: "asc" }] },
+      },
+    }),
+    db.project.findMany({
+      where: { status: "published" },
+      orderBy: [{ featured: "desc" }, { createdAt: "asc" }],
+      include: {
+        technologies: { orderBy: { order: "asc" } },
+        caseStudy: true,
+      },
+    }),
+    db.skill.findMany({
+      where: { status: "published" },
+      orderBy: [{ category: "asc" }, { featured: "desc" }, { createdAt: "asc" }],
+    }),
+    db.experience.findMany({
+      where: { status: "published" },
+      orderBy: [{ featured: "desc" }, { startDate: "desc" }],
+      include: { bullets: { orderBy: { order: "asc" } } },
+    }),
+    db.education.findMany({
+      where: { status: "published" },
+      orderBy: [{ featured: "desc" }, { endDate: "desc" }],
+    }),
+    db.certification.findMany({
+      where: { status: "published" },
+      orderBy: [{ featured: "desc" }, { issuedAt: "desc" }],
+    }),
+  ]);
 
   return { profile, projects, skills, experience, education, certifications };
 }

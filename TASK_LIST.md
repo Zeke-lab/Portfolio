@@ -25,8 +25,8 @@ The project foundation is in place.
 
 Do these one section at a time, then run the frontend build after each task.
 
-- [ ] **Hero:** replace name, headline, short introduction, availability, email, resume link, and primary call-to-action links.
-- [ ] **About:** add your real biography, strengths, location, and professional focus.
+- [x] **Hero:** replace name, headline, short introduction, availability, email, and primary call-to-action links. Resume link remains pending until after deployment.
+- [x] **About:** add your real biography, strengths, location, and professional focus.
 - [ ] **Skills and tech stack:** list only technologies you can confidently discuss; organize them by category.
 - [ ] **Projects:** replace the four project placeholders with real titles, summaries, technology tags, images, live links, repository links, and measurable outcomes.
 - [ ] **Case study:** select your strongest project and document problem, research, solution, architecture, delivery process, and results.
@@ -34,7 +34,7 @@ Do these one section at a time, then run the frontend build after each task.
 - [ ] **Education:** add degree, institution, dates, and key areas of study.
 - [ ] **Certifications:** add real certifications, issuing organizations, years, and credential links where available.
 - [ ] **Contact and footer:** replace email, LinkedIn, GitHub, website, location, footer name, and copyright name; remove all `#` social links.
-- [ ] **Resume:** add a final PDF resume and connect every resume/download button to it.
+- [ ] **Resume:** add a final PDF resume and connect every resume/download button to it after deployment.
 
 ## Phase 2 — Quality-check the public site
 
@@ -71,13 +71,21 @@ Start this only after Phase 1 content is approved and stable.
 - [x] Admin education and certification forms support month-only date selection (dates normalized to first day of month).
 - [x] Public portfolio education section is wired to database-backed values (replaces placeholders).
 - [x] Location field removed from education display on public portfolio.
+- [x] Profile admin inputs split Hero introduction from the detailed About biography.
+- [x] Project and experience textareas preserve separate lines on the public portfolio.
 
 ### Remaining work
 - [ ] Add a location field to admin education form (currently stored in DB but not editable via admin UI).
 - [ ] Replace the browser-native month picker with a custom styled month picker for consistent dark theme.
 - [ ] Replace placeholder public portfolio content with approved personal data for every section.
+- [ ] Add the final resume PDF and connect the resume URL/buttons after deployment.
 - [ ] Final hosting, environment, and production deployment setup.
 - [ ] Final QA for accessibility, mobile layout, and links before launch.
+- [ ] tech skill what worth with and tech stack are similar , how to fix
+- [ ] Final QA for accessibility, mobile layout, and links before launch.
+
+
+
 
 ## Phase 5 — Launch preparation
 

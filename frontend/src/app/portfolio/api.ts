@@ -15,6 +15,7 @@ export type ApiProfile = {
   id?: string;
   fullName?: string;
   headline?: string;
+  intro?: string | null;
   about?: string | null;
   email?: string;
   location?: string | null;

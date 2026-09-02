@@ -20,6 +20,7 @@ export type ProfileContent = {
   email?: string | null;
   location?: string | null;
   availability?: string | null;
+  intro?: string | null;
   about?: string | null;
   socialLinks?: SocialLink[];
 };
@@ -103,6 +104,7 @@ export type ProfileForm = {
   email: string;
   location: string;
   availability: string;
+  intro: string;
   github: string;
   linkedin: string;
   website: string;

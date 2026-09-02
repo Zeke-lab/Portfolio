@@ -19,6 +19,7 @@ const CAT_ICONS: Record<string, React.ComponentType<{ size?: number; className?:
   Frontend: Code2,
   Backend: Server,
   Database: Database,
+  Tools: Cloud,
   DevOps: Cloud,
   "AI & Automation": Cpu,
   "UI/UX": Layers,
@@ -226,10 +227,10 @@ function Hero({ profile }: { profile?: ApiProfile | null }) {
               initial={{ opacity: 0, y: 24 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.65, delay: 0.2 }}
-              className="text-[15px] text-muted-foreground leading-[1.75] max-w-lg mb-9"
+              className="text-[15px] text-muted-foreground leading-[1.75] max-w-lg mb-9 whitespace-pre-line"
               style={FF_BODY}
             >
-              {profile?.about || "I’m a developer with a Computer Science and software development background, focused on building practical full-stack web applications and learning through hands-on implementation. My work has included React, Node.js, Express, TypeScript, PostgreSQL, Prisma, REST APIs, JWT authentication, Socket.IO, Docker, and Git."}
+              {profile?.intro || "I’m a developer with a Computer Science and software development background, focused on building practical full-stack web applications and learning through hands-on implementation."}
             </motion.p>
 
             <motion.div
@@ -355,12 +356,10 @@ function About({ profile }: { profile?: ApiProfile | null }) {
                 full-stack development
               </span>
             </h2>
-            <p className="text-[15px] text-muted-foreground leading-[1.8] mb-4" style={FF_BODY}>
+            <p className="text-[15px] text-muted-foreground leading-[1.8] mb-4 whitespace-pre-line" style={FF_BODY}>
               {profile?.about || "I’m a developer with a Computer Science and software development background, focused on building full-stack web applications and learning through hands-on implementation."}
             </p>
-            <p className="text-[15px] text-muted-foreground leading-[1.8] mb-8" style={FF_BODY}>
-              My work has included React, Node.js, Express, TypeScript, PostgreSQL, Prisma, REST APIs, JWT authentication, Socket.IO, Docker, and Git. I’ve also contributed to a Myanmar POS system, an inventory management system, and an AI teaching companion project.
-            </p>
+            
 
             <div className="flex flex-wrap gap-2 mb-8">
               {["Full-Stack Development", "React & Node.js", "TypeScript", "PostgreSQL & Prisma", "REST APIs & Authentication"].map((t) => (
@@ -429,6 +428,10 @@ function Skills({ dark, skills }: { dark: boolean; skills: PortfolioView["skills
   const [active, setActive] = useState(cats[0]);
   const sectionClass = dark ? DARK_SECTION_ALT : LIGHT_SECTION_ALT;
 
+  useEffect(() => {
+    if (cats.length > 0 && !cats.includes(active)) setActive(cats[0]);
+  }, [active, cats]);
+
   return (
     <section id="skills" className={`py-28 md:py-36 ${sectionClass}`}>
       <div className="max-w-[1200px] mx-auto px-6">
@@ -484,7 +487,7 @@ function Skills({ dark, skills }: { dark: boolean; skills: PortfolioView["skills
           transition={{ duration: 0.3 }}
           className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3"
         >
-          {skills[active].chips.map((chip, i) => (
+          {(skills[active]?.chips ?? []).map((chip, i) => (
             <motion.div
               key={chip}
               initial={{ opacity: 0, y: 10 }}
@@ -569,11 +572,11 @@ function Projects({ dark, projects }: { dark: boolean; projects: PortfolioView["
                     >
                       {p.title}
                     </h3>
-                    <p className="text-[14px] text-muted-foreground leading-[1.75] mb-3" style={FF_BODY}>
+                    <p className="text-[14px] text-muted-foreground leading-[1.75] mb-3 whitespace-pre-line" style={FF_BODY}>
                       {p.summary || p.desc}
                     </p>
                     {p.description && p.description !== p.summary && (
-                      <p className="text-[13.5px] text-muted-foreground/80 leading-[1.65] mb-5" style={FF_BODY}>
+                      <p className="text-[13.5px] text-muted-foreground/80 leading-[1.65] mb-5 whitespace-pre-line" style={FF_BODY}>
                         {p.description}
                       </p>
                     )}
@@ -816,7 +819,7 @@ function Experience({ dark, experience }: { dark: boolean; experience: Portfolio
                     </span>
                   </div>
 
-                  <p className="text-[14px] text-muted-foreground leading-[1.75] mb-5" style={FF_BODY}>{exp.desc}</p>
+                  <p className="text-[14px] text-muted-foreground leading-[1.75] mb-5 whitespace-pre-line" style={FF_BODY}>{exp.desc}</p>
 
                   <ul className="space-y-2.5 mb-5">
                     {exp.bullets.map((b) => (
