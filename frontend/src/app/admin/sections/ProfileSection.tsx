@@ -13,6 +13,7 @@ type Props = {
 
 export function ProfileSection({ form, hasProfile, submitting, onChange, onSave, onDelete, onUploadFile }: Props) {
   const [isEditing, setIsEditing] = useState(!hasProfile);
+  const [formOpen, setFormOpen] = useState(!hasProfile);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const [uploadingDocument, setUploadingDocument] = useState(false);
   const avatarInputRef = useRef<HTMLInputElement>(null);
@@ -20,6 +21,7 @@ export function ProfileSection({ form, hasProfile, submitting, onChange, onSave,
 
   useEffect(() => {
     setIsEditing(!hasProfile);
+    setFormOpen(!hasProfile);
   }, [hasProfile]);
 
   const handleAvatarFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -72,29 +74,27 @@ export function ProfileSection({ form, hasProfile, submitting, onChange, onSave,
             ) : (
               <button
                 type="button"
-                onClick={() => setIsEditing(true)}
+                onClick={() => { setIsEditing(true); setFormOpen(true); }}
                 className="rounded-xl border border-indigo-300/40 bg-indigo-500/10 px-4 py-2 text-sm font-semibold text-indigo-200 hover:bg-indigo-500/20"
               >
                 Edit profile
               </button>
             )
           )}
-          {isEditing && (
-            <button type="button" onClick={onSave} disabled={submitting} className="rounded-xl bg-gradient-to-r from-indigo-500 to-violet-500 px-4 py-2 font-semibold text-white disabled:opacity-60">
-              {submitting ? "Saving..." : hasProfile ? "Update profile" : "Create profile"}
-            </button>
-          )}
+          {!hasProfile && !formOpen && <button type="button" onClick={() => { setIsEditing(true); setFormOpen(true); }} disabled={submitting} className="rounded-xl bg-gradient-to-r from-indigo-500 to-violet-500 px-4 py-2 font-semibold text-white disabled:opacity-60">Create profile</button>}
         </div>
       </div>
 
+      {formOpen && <div className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-950/75 p-4 backdrop-blur-sm"><div className="max-h-[90vh] w-full max-w-4xl overflow-y-auto rounded-3xl border border-white/15 bg-[#0b1226] p-6 shadow-2xl shadow-black/40">
+        <div className="mb-5 flex items-center justify-between"><h3 className="text-xl font-bold">{hasProfile ? "Edit profile" : "Create profile"}</h3>{hasProfile && <button type="button" onClick={() => { setIsEditing(false); setFormOpen(false); }} disabled={submitting} className="text-slate-400 hover:text-white">Close</button>}</div>
       <div className="grid gap-4 md:grid-cols-2">
         <label className="block text-sm text-slate-300 md:col-span-2">
-          Full name
+          Full name <span className="text-red-400">*</span>
           <input disabled={!isEditing} value={form.fullName} onChange={(event) => onChange("fullName", event.target.value)} className="mt-2 w-full rounded-xl border border-white/10 bg-slate-900/80 px-3 py-2.5 text-white disabled:cursor-default disabled:opacity-70" />
         </label>
 
         <label className="block text-sm text-slate-300 md:col-span-2">
-          Headline
+          Headline <span className="text-red-400">*</span>
           <input disabled={!isEditing} value={form.headline} onChange={(event) => onChange("headline", event.target.value)} className="mt-2 w-full rounded-xl border border-white/10 bg-slate-900/80 px-3 py-2.5 text-white disabled:cursor-default disabled:opacity-70" />
         </label>
 
@@ -166,6 +166,8 @@ export function ProfileSection({ form, hasProfile, submitting, onChange, onSave,
           <textarea disabled={!isEditing} value={form.about} onChange={(event) => onChange("about", event.target.value)} rows={6} placeholder="Your background, strengths, experience, and professional focus" className="mt-2 w-full rounded-xl border border-white/10 bg-slate-900/80 px-3 py-2.5 text-white disabled:cursor-default disabled:opacity-70" />
         </label>
       </div>
+      <div className="mt-6 flex justify-end gap-2">{hasProfile && <button type="button" onClick={() => { setIsEditing(false); setFormOpen(false); }} disabled={submitting} className="rounded-xl border border-white/10 px-4 py-2 text-sm text-slate-200">Cancel</button>}<button type="button" onClick={() => { onSave(); setFormOpen(false); }} disabled={submitting} className="rounded-xl bg-gradient-to-r from-indigo-500 to-violet-500 px-4 py-2 font-semibold text-white disabled:opacity-60">{submitting ? "Saving..." : hasProfile ? "Update profile" : "Create profile"}</button></div>
+      </div></div>}
     </section>
   );
 }

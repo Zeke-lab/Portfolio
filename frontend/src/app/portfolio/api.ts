@@ -27,7 +27,7 @@ export type ApiProfile = {
   resumes?: { fileUrl: string; label: string }[];
 };
 
-type ApiSkill = { category: string; name: string };
+type ApiSkill = { category: string; name: string; icon?: string | null };
 type ApiExperience = { company: string; role: string; location: string | null; startDate: string; endDate: string | null; description: string; bullets: { text: string }[] };
 type ApiEducation = { institution: string; degree?: string | null; field?: string | null; location?: string | null; startDate?: string | null; endDate?: string | null; description?: string | null };
 type ApiCertification = { title: string; issuer: string; year: string | null };
@@ -66,7 +66,7 @@ export type PortfolioView = {
   experience: Array<{ company: string; logo: string; logoClass: string; role: string; period: string; location: string; desc: string; bullets: string[]; tech: string[]; accentColor: string; lineColor: string }>;
   education: Array<{ degree: string; university: string; period: string; focus: string[]; description: string }>;
   caseStudy: Array<{ phase: string; tag: string; title: string; body: string }>;
-  techGrid: Record<string, { color: string; dot: string; items: string[] }>;
+  techGrid: Record<string, { color: string; dot: string; items: Array<{ name: string; icon: string | null }> }>;
   certs: Array<{ title: string; issuer: string; year: string; color: string }>;
 };
 
@@ -145,7 +145,13 @@ export async function fetchPortfolioContent(): Promise<PortfolioView> {
       { phase: "02", tag: "Solution", title: "Approach", body: primaryCaseStudy.solution ?? "" },
       { phase: "03", tag: "Results", title: "Outcome", body: primaryCaseStudy.results ?? "" },
     ].filter((step) => step.body) : [],
-    techGrid: Object.fromEntries(Object.entries(skills).map(([category, group], index) => [category, { color: COLORS[index % COLORS.length].color, dot: group.dot, items: group.chips }])),
+    techGrid: Object.fromEntries(categoryNames.map((category, index) => [category, {
+      color: COLORS[index % COLORS.length].color,
+      dot: COLORS[index % COLORS.length].dot,
+      items: content.skills
+        .filter((skill) => skill.category === category)
+        .map((skill) => ({ name: skill.name, icon: skill.icon ?? null })),
+    }])),
     certs: content.certifications.map((certification, index) => ({ ...certification, year: certification.year ?? "", color: `${COLORS[index % COLORS.length].color} bg-white/[0.04] border-white/[0.1]` })),
   };
 }

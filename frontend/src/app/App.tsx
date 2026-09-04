@@ -9,6 +9,8 @@ import {
 } from "lucide-react";
 import { fetchPortfolioContent, submitContactMessage, type PortfolioView, type ApiProfile } from "./portfolio/api";
 import AdminDashboard from "./admin/AdminDashboard";
+import { getSkillIcon } from "./skillIcons";
+import { iconifyUrl } from "./admin/api/iconApi";
 
 // ─── global scroll helper ─────────────────────────────────────────────────────
 const go = (id: string) =>
@@ -70,7 +72,7 @@ function Nav({ dark, setDark, profile }: { dark: boolean; setDark: (v: boolean) 
 
   const links = [
     { label: "About", id: "about" },
-    { label: "Skills", id: "skills" },
+    { label: "Skills", id: "techstack" },
     { label: "Projects", id: "projects" },
     { label: "Case Studies", id: "casestudy" },
     { label: "Experience", id: "experience" },
@@ -85,7 +87,7 @@ function Nav({ dark, setDark, profile }: { dark: boolean; setDark: (v: boolean) 
           : "bg-transparent"
       }`}
     >
-      <div className="max-w-[1260px] mx-auto px-6 h-[62px] flex items-center justify-between gap-8">
+      <div className="max-w-[1260px] mx-auto px-4 sm:px-6 h-[62px] flex items-center justify-between gap-4 sm:gap-8">
         {/* Logo */}
         <button onClick={() => navGo("home")} className="shrink-0 text-[15px] font-bold" style={FF_DISPLAY}>
           <span className="bg-gradient-to-r from-indigo-400 via-violet-400 to-cyan-400 bg-clip-text text-transparent">
@@ -138,7 +140,7 @@ function Nav({ dark, setDark, profile }: { dark: boolean; setDark: (v: boolean) 
       </div>
 
       {open && (
-        <div className="lg:hidden bg-[#03050c]/97 backdrop-blur-2xl border-b border-white/[0.07] px-6 py-5">
+        <div className="lg:hidden bg-[#03050c]/97 backdrop-blur-2xl border-b border-white/[0.07] px-4 sm:px-6 py-5">
           <div className="flex flex-col gap-2">
             {links.map(({ label, id }) => (
               <button
@@ -184,8 +186,8 @@ function Hero({ profile }: { profile?: ApiProfile | null }) {
       <div className="absolute bottom-0 right-0 w-[700px] h-[700px] bg-violet-600/[0.09] rounded-full blur-[120px] translate-x-1/4 translate-y-1/4" />
       <div className="absolute top-1/2 left-1/2 w-[500px] h-[500px] bg-cyan-600/[0.05] rounded-full blur-[100px] -translate-x-1/2 -translate-y-1/2" />
 
-      <div className="relative z-10 w-full max-w-[1260px] mx-auto px-6 pt-24 pb-16">
-        <div className="grid gap-16 items-center">
+      <div className="relative z-10 w-full max-w-[1260px] mx-auto px-4 sm:px-6 pt-24 pb-16">
+        <div className="grid gap-10 md:gap-16 items-center">
 
           {/* ─ Left column ─ */}
           <div>
@@ -209,7 +211,7 @@ function Hero({ profile }: { profile?: ApiProfile | null }) {
               </p>
               <h1
                 className="font-extrabold leading-[1.05] mb-5 tracking-tight"
-                style={{ ...FF_DISPLAY, fontSize: "clamp(3rem, 7vw, 5.25rem)" }}
+                style={{ ...FF_DISPLAY, fontSize: "clamp(2.8rem, 7vw, 5.25rem)" }}
               >
                 <span className="bg-gradient-to-br from-indigo-300 via-violet-300 to-cyan-300 bg-clip-text text-transparent">
                   {profile?.fullName || "Ye Myat Min"}
@@ -310,35 +312,37 @@ function About({ profile }: { profile?: ApiProfile | null }) {
 
   return (
     <section id="about" className="py-28 md:py-36 bg-background relative">
-      <div className="max-w-[1260px] mx-auto px-6">
+      <div className="max-w-[1260px] mx-auto px-4 sm:px-6">
         <motion.div
           initial={{ opacity: 0, y: 40 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-80px" }}
           transition={{ duration: 0.6 }}
-          className="grid lg:grid-cols-[1fr_1.35fr] gap-16 items-center mb-20"
+          className="grid lg:grid-cols-[1fr_1.35fr] gap-10 lg:gap-16 items-center mb-16 md:mb-20"
         >
-          {/* Card / Image stand-in */}
+          {/* Profile portrait */}
           <div className="relative">
-            <div className="relative rounded-3xl overflow-hidden bg-gradient-to-br from-indigo-950/60 via-violet-950/40 to-background border border-indigo-500/20 p-8 shadow-2xl shadow-indigo-500/10">
-              <div className="aspect-[4/3] rounded-2xl bg-gradient-to-br from-indigo-600/20 to-violet-600/20 border border-white/[0.08] flex items-center justify-center p-8 text-center relative overflow-hidden">
-                <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-indigo-500/20 via-transparent to-transparent" />
-                <div className="relative z-10 flex flex-col items-center gap-3">
-                  <div
-                    className="w-20 h-20 rounded-2xl bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center text-white text-3xl font-extrabold shadow-xl shadow-indigo-500/30"
-                    style={FF_DISPLAY}
-                  >
-                    {profile?.fullName ? profile.fullName.split(" ").map((n) => n[0]).join("") : "YM"}
-                  </div>
-                  <span className="text-white/40 text-xs" style={FF_MONO}>{profile?.email || "yemyatmin192@gmail.com"}</span>
+            <div className="absolute -inset-3 border border-cyan-400/20 -rotate-2" aria-hidden="true" />
+            <div className="relative aspect-[4/5] min-h-[360px] overflow-hidden bg-slate-900 border border-white/10">
+              {profile?.avatarUrl ? (
+                <img
+                  src={profile.avatarUrl}
+                  alt={profile.fullName ? `${profile.fullName} portrait` : "Profile portrait"}
+                  className="h-full w-full object-cover"
+                />
+              ) : (
+                <div className="h-full w-full flex items-center justify-center bg-slate-900 text-8xl font-extrabold text-cyan-300" style={FF_DISPLAY}>
+                  {profile?.fullName ? profile.fullName.split(" ").map((name) => name[0]).join("") : "YM"}
                 </div>
-              </div>
-              {/* Accent corners */}
-              <div className="absolute -top-3 -right-3 w-16 h-16 bg-cyan-500/10 border border-cyan-500/20 rounded-2xl backdrop-blur-sm flex items-center justify-center">
-                <Code2 size={20} className="text-cyan-400" />
-              </div>
-              <div className="absolute -bottom-3 -left-3 w-14 h-14 bg-violet-500/10 border border-violet-500/20 rounded-xl backdrop-blur-sm flex items-center justify-center">
-                <Cpu size={18} className="text-violet-400" />
+              )}
+              <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent p-6 pt-24">
+                <div className="flex items-end justify-between gap-4 text-white">
+                  <div>
+                    <p className="text-sm font-semibold" style={FF_DISPLAY}>{profile?.fullName || "Ye Myat Min"}</p>
+                    <p className="mt-1 text-xs text-white/65" style={FF_MONO}>{profile?.location || "Chiang Rai, Thailand"}</p>
+                  </div>
+                  <MapPin size={17} className="text-cyan-300 shrink-0" aria-hidden="true" />
+                </div>
               </div>
             </div>
           </div>
@@ -347,11 +351,11 @@ function About({ profile }: { profile?: ApiProfile | null }) {
           <div>
             <Eyebrow text="About Me" />
             <h2
-              className="text-4xl md:text-[3.2rem] font-extrabold text-foreground mb-6 leading-[1.1] tracking-tight"
+              className="text-3xl sm:text-4xl md:text-[3.2rem] font-extrabold text-foreground mb-6 leading-[1.1] tracking-tight"
               style={FF_DISPLAY}
             >
               Building practical software with a strong foundation in
-              <br />
+              <br className="hidden sm:block" />
               <span className="bg-gradient-to-r from-indigo-400 to-cyan-400 bg-clip-text text-transparent">
                 full-stack development
               </span>
@@ -373,7 +377,7 @@ function About({ profile }: { profile?: ApiProfile | null }) {
               ))}
             </div>
 
-            <div className="flex gap-3">
+            <div className="flex flex-wrap gap-3">
               <button
                 onClick={() => go("contact")}
                 className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-indigo-500 to-violet-600 text-white rounded-xl font-semibold hover:opacity-90 transition-all text-sm shadow-lg shadow-indigo-500/25"
@@ -422,92 +426,18 @@ function About({ profile }: { profile?: ApiProfile | null }) {
   );
 }
 
-// ─── Skills (interactive tabs) ────────────────────────────────────────────────
-function Skills({ dark, skills }: { dark: boolean; skills: PortfolioView["skills"] }) {
-  const cats = Object.keys(skills);
-  const [active, setActive] = useState(cats[0]);
-  const sectionClass = dark ? DARK_SECTION_ALT : LIGHT_SECTION_ALT;
-
-  useEffect(() => {
-    if (cats.length > 0 && !cats.includes(active)) setActive(cats[0]);
-  }, [active, cats]);
-
-  return (
-    <section id="skills" className={`py-28 md:py-36 ${sectionClass}`}>
-      <div className="max-w-[1200px] mx-auto px-6">
-        <motion.div
-          initial={{ opacity: 0, y: 40 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-80px" }}
-          transition={{ duration: 0.6 }}
-          className="mb-12"
-        >
-          <div className="text-center mb-10">
-            <Eyebrow text="Technical Skills" />
-            <h2
-              className="text-4xl md:text-[3.2rem] font-extrabold text-foreground mb-4 tracking-tight"
-              style={FF_DISPLAY}
-            >
-              What I Work With
-            </h2>
-            <p className="text-[15px] text-muted-foreground max-w-xl mx-auto" style={FF_BODY}>
-              A curated set of tools chosen for performance, reliability, and developer ergonomics.
-            </p>
-          </div>
-
-          {/* Tabs */}
-          <div className="flex flex-wrap justify-center gap-2">
-            {cats.map((cat) => {
-              const Icon = CAT_ICONS[cat];
-              const isActive = active === cat;
-              return (
-                <button
-                  key={cat}
-                  onClick={() => setActive(cat)}
-                  className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-[13.5px] font-semibold transition-all duration-200 ${
-                    isActive
-                      ? "bg-indigo-500 text-white shadow-lg shadow-indigo-500/30"
-                      : "bg-white/[0.04] border border-white/[0.08] text-muted-foreground hover:text-foreground hover:bg-white/[0.08]"
-                  }`}
-                  style={FF_DISPLAY}
-                >
-                  {Icon && <Icon size={14} />}
-                  {cat}
-                </button>
-              );
-            })}
-          </div>
-        </motion.div>
-
-        {/* Chips grid — re-animates on tab change */}
-        <motion.div
-          key={active}
-          initial={{ opacity: 0, y: 14 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3 }}
-          className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3"
-        >
-          {(skills[active]?.chips ?? []).map((chip, i) => (
-            <motion.div
-              key={chip}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.2, delay: i * 0.04 }}
-              className={`flex items-center gap-3 px-4 py-3.5 bg-white/[0.03] border ${skills[active].border} rounded-xl hover:bg-white/[0.06] transition-all cursor-default`}
-            >
-              <span className={`w-2 h-2 rounded-full shrink-0 ${skills[active].dot}`} />
-              <span className="text-sm text-foreground/80" style={FF_MONO}>{chip}</span>
-            </motion.div>
-          ))}
-        </motion.div>
-      </div>
-    </section>
-  );
-}
-
 // ─── Projects ─────────────────────────────────────────────────────────────────
 function Projects({ dark, projects }: { dark: boolean; projects: PortfolioView["projects"] }) {
   const sectionClass = dark ? DARK_SECTION : "bg-[#f7f9ff]";
+
+  const getProjectNotes = (project: PortfolioView["projects"][number]) => {
+    const notes = (project.description ?? "")
+      .split(/\n+/)
+      .map((line) => line.replace(/^[-•*]\s*/, "").trim())
+      .filter(Boolean);
+
+    return notes;
+  };
 
   return (
     <section id="projects" className={`py-28 md:py-36 ${sectionClass}`}>
@@ -521,7 +451,7 @@ function Projects({ dark, projects }: { dark: boolean; projects: PortfolioView["
         >
           <Eyebrow text="Featured Work" />
           <h2
-            className="text-4xl md:text-[3.2rem] font-extrabold text-foreground mb-4 tracking-tight"
+            className="text-3xl sm:text-4xl md:text-[3.2rem] font-extrabold text-foreground mb-4 tracking-tight"
             style={FF_DISPLAY}
           >
             Projects That Ship
@@ -575,18 +505,13 @@ function Projects({ dark, projects }: { dark: boolean; projects: PortfolioView["
                     <p className="text-[14px] text-muted-foreground leading-[1.75] mb-3 whitespace-pre-line" style={FF_BODY}>
                       {p.summary || p.desc}
                     </p>
-                    {p.description && p.description !== p.summary && (
-                      <p className="text-[13.5px] text-muted-foreground/80 leading-[1.65] mb-5 whitespace-pre-line" style={FF_BODY}>
-                        {p.description}
-                      </p>
-                    )}
 
-                    {p.features.length > 0 && (
+                    {getProjectNotes(p).length > 0 && (
                       <ul className="space-y-2 mb-6">
-                        {p.features.map((f) => (
+                        {getProjectNotes(p).map((f) => (
                           <li key={f} className="flex items-start gap-2.5 text-[13.5px] text-muted-foreground" style={FF_BODY}>
                             <CheckCircle size={14} className="text-indigo-400 mt-0.5 shrink-0" />
-                            {f}
+                            <span>{f}</span>
                           </li>
                         ))}
                       </ul>
@@ -979,7 +904,8 @@ function Education({ dark, education, certs }: { dark: boolean; education: Portf
 
 // ─── Tech Stack ───────────────────────────────────────────────────────────────
 function TechStack({ dark, techGrid }: { dark: boolean; techGrid: PortfolioView["techGrid"] }) {
-  const sectionClass = dark ? DARK_SECTION : "bg-[#f7f9ff]";
+  const sectionClass = dark ? DARK_SECTION : "bg-[#020817]";
+  const entries = Object.entries(techGrid);
 
   return (
     <section id="techstack" className={`py-28 md:py-36 ${sectionClass}`}>
@@ -989,43 +915,41 @@ function TechStack({ dark, techGrid }: { dark: boolean; techGrid: PortfolioView[
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-80px" }}
           transition={{ duration: 0.6 }}
-          className="text-center mb-14"
+          className=" text-center mb-10"
         >
-          <Eyebrow text="Tech Stack" />
+          <Eyebrow text="Technical Skills" />
           <h2
-            className="text-4xl md:text-[3.2rem] font-extrabold text-foreground mb-4 tracking-tight"
+            className="text-3xl sm:text-4xl md:text-[3.2rem] font-extrabold text-foreground mb-4 tracking-tight"
             style={FF_DISPLAY}
           >
-            Tools of the Trade
+            Skillset
           </h2>
-          <p className="text-[15px] text-muted-foreground max-w-lg mx-auto" style={FF_BODY}>
-            Every tool chosen for a specific reason — performance, reliability, and developer experience.
-          </p>
         </motion.div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
-          {Object.entries(techGrid).map(([cat, { color, dot, items }], i) => (
-            <motion.div
-              key={cat}
-              initial={{ opacity: 0, y: 24 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-60px" }}
-              transition={{ duration: 0.45, delay: i * 0.06 }}
-            >
-              <Glass className="p-5 hover:bg-white/[0.05] transition-all h-full">
-                <p className={`text-[11px] font-bold uppercase tracking-[0.15em] mb-4 ${color}`} style={FF_BODY}>
-                  {cat}
-                </p>
-                <div className="space-y-2.5">
-                  {items.map((t) => (
-                    <div key={t} className="flex items-center gap-2.5 text-muted-foreground hover:text-foreground transition-colors cursor-default">
-                      <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${dot}`} />
-                      <span className="text-[13px]" style={FF_MONO}>{t}</span>
-                    </div>
-                  ))}
-                </div>
-              </Glass>
-            </motion.div>
+        <div className="grid gap-x-10 gap-y-10 md:grid-cols-2 xl:grid-cols-4">
+          {entries.map(([cat, { color, dot, items }]) => (
+            <div key={cat} className="min-w-0">
+              <p className={`mb-4 text-[12px] font-bold uppercase tracking-[0.18em] ${color}`} style={FF_BODY}>
+                {cat}
+              </p>
+
+              <ul className="space-y-3">
+                {items.map((item) => {
+                  const Icon = getSkillIcon(item.icon);
+                  return (
+                  <li
+                    key={item.name}
+                    className="group flex items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.02] px-3 py-2 text-[15px] text-white/90 transition-all duration-200 hover:border-indigo-400/30 hover:bg-white/[0.06] hover:shadow-[0_0_30px_rgba(99,102,241,0.12)] hover:backdrop-blur-sm md:text-[18px]"
+                    style={FF_DISPLAY}
+                  >
+                    <span className={`h-2.5 w-2.5 shrink-0 rounded-full ${dot}`} />
+                    {iconifyUrl(item.icon) ? <img src={iconifyUrl(item.icon) ?? ""} alt="" className="h-5 w-5 shrink-0" /> : <Icon size={18} className="shrink-0 text-white/60" />}
+                    <span>{item.name}</span>
+                  </li>
+                  );
+                })}
+              </ul>
+            </div>
           ))}
         </div>
       </div>
@@ -1255,20 +1179,20 @@ function Contact({ dark, profile }: { dark: boolean; profile?: ApiProfile | null
 }
 
 // ─── Footer ───────────────────────────────────────────────────────────────────
-function Footer() {
+function Footer({ profile }: { profile?: ApiProfile | null }) {
   const links = [
     { label: "About", id: "about" },
     { label: "Projects", id: "projects" },
     { label: "Experience", id: "experience" },
-    { label: "Skills", id: "skills" },
+    { label: "Skills", id: "techstack" },
     { label: "Contact", id: "contact" },
   ];
   const socials = [
-    { icon: <Github size={17} />, href: "#", label: "GitHub" },
-    { icon: <Linkedin size={17} />, href: "#", label: "LinkedIn" },
-    { icon: <Mail size={17} />, href: "mailto:yemyatmin192@gmail.com", label: "Email" },
-    { icon: <Globe size={17} />, href: "#", label: "Website" },
-  ];
+    { icon: <Github size={17} />, href: profile?.githubUrl ?? "#", label: "GitHub" },
+    { icon: <Linkedin size={17} />, href: profile?.linkedinUrl ?? "#", label: "LinkedIn" },
+    { icon: <Mail size={17} />, href: profile?.email ? `mailto:${profile.email}` : "#", label: "Email" },
+    { icon: <Globe size={17} />, href: profile?.websiteUrl ?? "#", label: "Website" },
+  ].filter((social) => social.href && social.href !== "#");
 
   return (
     <footer className="border-t border-white/[0.06] bg-background">
@@ -1279,7 +1203,9 @@ function Footer() {
             className="text-[15px] font-bold"
             style={FF_DISPLAY}
           >
-            <span className="bg-gradient-to-r from-indigo-400 via-violet-400 to-cyan-400 bg-clip-text text-transparent">[YOUR NAME]</span>
+            <span className="bg-gradient-to-r from-indigo-400 via-violet-400 to-cyan-400 bg-clip-text text-transparent">
+              {profile?.fullName ? `[${profile.fullName.toUpperCase()}]` : "[YOUR NAME]"}
+            </span>
           </button>
 
           <nav className="flex flex-wrap justify-center gap-0.5">
@@ -1301,6 +1227,8 @@ function Footer() {
                 key={s.label}
                 href={s.href}
                 aria-label={s.label}
+                target={s.href.startsWith("http") ? "_blank" : undefined}
+                rel={s.href.startsWith("http") ? "noopener noreferrer" : undefined}
                 className="p-2.5 text-muted-foreground hover:text-foreground rounded-xl hover:bg-white/[0.05] transition-all"
               >
                 {s.icon}
@@ -1310,7 +1238,7 @@ function Footer() {
         </div>
 
         <div className="mt-8 pt-6 border-t border-white/[0.05] flex flex-col md:flex-row items-center justify-between gap-3 text-[12px] text-muted-foreground/45">
-          <p style={FF_BODY}>© 2026 [YOUR NAME]. All rights reserved.</p>
+          <p style={FF_BODY}>© 2026 {profile?.fullName ?? "[YOUR NAME]"}. All rights reserved.</p>
           <p style={FF_MONO}>React · TypeScript · Tailwind CSS · Vite</p>
         </div>
       </div>
@@ -1416,14 +1344,13 @@ export default function App() {
       <Nav dark={dark} setDark={setDark} profile={portfolio.profile} />
       <Hero profile={portfolio.profile} />
       <About profile={portfolio.profile} />
-      <Skills dark={dark} skills={portfolio.skills} />
+      <TechStack dark={dark} techGrid={portfolio.techGrid} />
       <Projects dark={dark} projects={portfolio.projects} />
       <CaseStudy dark={dark} caseStudy={portfolio.caseStudy} />
       <Experience dark={dark} experience={portfolio.experience} />
       <Education dark={dark} education={portfolio.education} certs={portfolio.certs} />
-      <TechStack dark={dark} techGrid={portfolio.techGrid} />
       <Contact dark={dark} profile={portfolio.profile} />
-      <Footer />
+      <Footer profile={portfolio.profile} />
     </div>
   );
 }

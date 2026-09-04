@@ -74,14 +74,14 @@ export default function AdminDashboard() {
 
   return (
     <main className="min-h-screen bg-[#040816] text-white">
-      <div className="mx-auto max-w-7xl px-6 py-10">
-        <div className="mb-8 flex flex-col gap-4 rounded-2xl border border-white/10 bg-white/[0.03] p-5 md:flex-row md:items-center md:justify-between">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 py-6 sm:py-10">
+        <div className="mb-8 flex flex-col gap-4 rounded-2xl border border-white/10 bg-white/[0.03] p-4 sm:p-5 md:flex-row md:items-center md:justify-between">
           <div>
             <p className="text-xs uppercase tracking-[0.2em] text-indigo-300">Portfolio Admin</p>
             <h1 className="mt-2 text-2xl font-bold">Content Dashboard</h1>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-3">
             <button
               type="button"
               onClick={openPublicPortfolio}
@@ -154,6 +154,7 @@ export default function AdminDashboard() {
             onEdit={state.startEditSkill}
             onDelete={state.removeSkill}
             onCancelEdit={state.resetSkillDraft}
+            error={state.error}
           />
 
           <ExperienceSection

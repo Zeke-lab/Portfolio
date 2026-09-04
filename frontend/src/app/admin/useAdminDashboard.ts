@@ -200,6 +200,7 @@ export function useAdminDashboard() {
       imageUrl: project.imageUrl ?? "",
       liveUrl: project.liveUrl ?? "",
       repoUrl: project.repoUrl ?? "",
+      caseStudyLink: project.caseStudyLink ?? "",
       technologies: (project.technologies ?? []).map((tech: any) => tech.name).join(", "),
     });
   };
@@ -402,7 +403,7 @@ export function useAdminDashboard() {
         imageUrl: draftProject.imageUrl,
         liveUrl: draftProject.liveUrl,
         repoUrl: draftProject.repoUrl,
-        caseStudyLink: draftProject.caseStudyLink || null,
+        caseStudyLink: draftProject.caseStudyLink || "",
         technologies: draftProject.technologies.split(",").map((item) => item.trim()).filter(Boolean),
       };
 
@@ -421,8 +422,8 @@ export function useAdminDashboard() {
     }
   };
 
-  const saveSkill = async () => {
-    if (!token) return;
+  const saveSkill = async (): Promise<boolean> => {
+    if (!token) return false;
 
     setSubmitting(true);
     setError(null);
@@ -442,8 +443,10 @@ export function useAdminDashboard() {
 
       resetSkillDraft();
       await fetchAdminContent(token);
+      return true;
     } catch (submitError) {
       setError(submitError instanceof Error ? submitError.message : "Unable to save skill");
+      return false;
     } finally {
       setSubmitting(false);
     }
@@ -451,6 +454,11 @@ export function useAdminDashboard() {
 
   const saveExperience = async () => {
     if (!token) return;
+
+    if (!draftExperience.startDate || !draftExperience.startDate.trim()) {
+      setError("Start month is required for experience entries.");
+      return;
+    }
 
     setSubmitting(true);
     setError(null);
