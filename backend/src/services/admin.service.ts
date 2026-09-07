@@ -21,11 +21,18 @@ function slugifyProjectTitle(title: string) {
   return sanitized || `project-${Date.now()}`;
 }
 
-function parseOptionalDate(value?: string) {
+function parseOptionalDate(value?: string | null) {
   if (!value || value.trim() === "") return null;
 
   const date = new Date(value);
   return Number.isNaN(date.getTime()) ? null : date;
+}
+
+function hasCaseStudyContent(caseStudy?: ProjectInput["caseStudy"]) {
+  return Boolean(caseStudy && Object.entries(caseStudy).some(([key, value]) => {
+    if (key === "features") return Array.isArray(value) && value.some((feature) => feature.trim());
+    return typeof value === "string" && value.trim().length > 0;
+  }));
 }
 
 export async function resolveAdminUser(email: string, password: string) {
@@ -147,8 +154,31 @@ export async function createProject(payload: ProjectInput) {
           order: index,
         })),
       },
+      gallery: {
+        create: (payload.gallery ?? []).map((image, index) => ({
+          imageUrl: image.imageUrl,
+          caption: image.caption || null,
+          order: index,
+        })),
+      },
+      ...(hasCaseStudyContent(payload.caseStudy) ? {
+        caseStudy: {
+          create: {
+            problem: payload.caseStudy?.problem || null,
+            approach: payload.caseStudy?.approach || null,
+            solution: payload.caseStudy?.solution || null,
+            implementation: payload.caseStudy?.implementation || null,
+            execution: payload.caseStudy?.execution || null,
+            results: payload.caseStudy?.results || null,
+            status: "published",
+            features: {
+              create: (payload.caseStudy?.features ?? []).filter(Boolean).map((title, index) => ({ title, order: index })),
+            },
+          },
+        },
+      } : {}),
     },
-    include: { technologies: true },
+    include: { technologies: true, caseStudy: true, gallery: { orderBy: { order: "asc" } } },
   });
 }
 
@@ -174,8 +204,47 @@ export async function updateProject(id: string, payload: ProjectInput) {
           order: index,
         })),
       },
+      gallery: {
+        deleteMany: {},
+        create: (payload.gallery ?? []).map((image, index) => ({
+          imageUrl: image.imageUrl,
+          caption: image.caption || null,
+          order: index,
+        })),
+      },
+      caseStudy: hasCaseStudyContent(payload.caseStudy) ? {
+        upsert: {
+          create: {
+            problem: payload.caseStudy?.problem || null,
+            approach: payload.caseStudy?.approach || null,
+            solution: payload.caseStudy?.solution || null,
+            implementation: payload.caseStudy?.implementation || null,
+            execution: payload.caseStudy?.execution || null,
+            results: payload.caseStudy?.results || null,
+            status: "published",
+            features: {
+              create: (payload.caseStudy?.features ?? []).filter(Boolean).map((title, index) => ({ title, order: index })),
+            },
+          },
+          update: {
+            problem: payload.caseStudy?.problem || null,
+            approach: payload.caseStudy?.approach || null,
+            solution: payload.caseStudy?.solution || null,
+            implementation: payload.caseStudy?.implementation || null,
+            execution: payload.caseStudy?.execution || null,
+            results: payload.caseStudy?.results || null,
+            status: "published",
+            features: {
+              deleteMany: {},
+              create: (payload.caseStudy?.features ?? []).filter(Boolean).map((title, index) => ({ title, order: index })),
+            },
+          },
+        },
+      } : {
+        delete: true,
+      },
     },
-    include: { technologies: true },
+    include: { technologies: true, caseStudy: true, gallery: { orderBy: { order: "asc" } } },
   });
 }
 
@@ -373,7 +442,8 @@ export async function getAdminContent() {
       orderBy: [{ featured: "desc" }, { createdAt: "asc" }],
       include: {
         technologies: { orderBy: { order: "asc" } },
-        caseStudy: true,
+        caseStudy: { include: { features: { orderBy: { order: "asc" } } } },
+        gallery: { orderBy: { order: "asc" } },
       },
     }),
     db.skill.findMany({

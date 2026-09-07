@@ -4,6 +4,12 @@ export type IconSearchResult = {
   iconName: string;
 };
 
+export const FEATURED_ICONS: IconSearchResult[] = [
+  { name: "simple-icons:claude", prefix: "simple-icons", iconName: "claude" },
+  { name: "simple-icons:openai", prefix: "simple-icons", iconName: "openai" },
+  { name: "mdi:google", prefix: "mdi", iconName: "google" },
+];
+
 type IconifySearchResponse = {
   icons?: string[];
 };
@@ -13,7 +19,11 @@ export async function searchIcons(query: string): Promise<IconSearchResult[]> {
   if (!response.ok) throw new Error("Unable to search icons.");
 
   const data = await response.json() as IconifySearchResponse;
-  return (data.icons ?? []).flatMap((name) => {
+  return (data.icons ?? []).sort((left, right) => {
+    const leftPriority = left.startsWith("simple-icons:") ? 0 : 1;
+    const rightPriority = right.startsWith("simple-icons:") ? 0 : 1;
+    return leftPriority - rightPriority;
+  }).flatMap((name) => {
     const separator = name.indexOf(":");
     if (separator < 1 || separator === name.length - 1) return [];
 
@@ -25,9 +35,3 @@ export async function searchIcons(query: string): Promise<IconSearchResult[]> {
   });
 }
 
-export function iconifyUrl(name?: string | null, color = "#a5b4fc") {
-  if (!name?.includes(":")) return null;
-
-  const [prefix, iconName] = name.split(":");
-  return `https://api.iconify.design/${encodeURIComponent(prefix)}/${encodeURIComponent(iconName)}.svg?color=${encodeURIComponent(color)}`;
-}

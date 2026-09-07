@@ -7,8 +7,9 @@ type Props = {
   editingExperienceId: string | null;
   experience: ExperienceContent[];
   submitting: boolean;
+  error: string | null;
   setDraftExperience: Dispatch<SetStateAction<ExperienceDraft>>;
-  onSave: () => void;
+  onSave: () => Promise<boolean>;
   onEdit: (item: ExperienceContent) => void;
   onDelete: (id: string) => void;
   onCancelEdit: () => void;
@@ -20,6 +21,7 @@ export function ExperienceSection({
   editingExperienceId,
   experience,
   submitting,
+  error,
   setDraftExperience,
   onSave,
   onEdit,
@@ -71,7 +73,8 @@ export function ExperienceSection({
           <textarea value={draftExperience.bullets} onChange={(event) => setDraftExperience((current) => ({ ...current, bullets: event.target.value }))} rows={4} placeholder="Led product architecture\nReduced deployment time by 32%" className="mt-2 w-full rounded-xl border border-white/10 bg-slate-900/80 px-3 py-2.5 text-white" />
         </label>
       </div>
-      <div className="mt-6 flex justify-end gap-2"><button type="button" onClick={handleClose} disabled={submitting} className="rounded-xl border border-white/10 px-4 py-2 text-sm text-slate-200">Cancel</button><button type="button" onClick={async () => { await onSave(); setFormOpen(false); }} disabled={submitting} className="rounded-xl bg-gradient-to-r from-indigo-500 to-violet-500 px-4 py-2 text-sm font-semibold text-white disabled:opacity-60">{submitting ? "Saving..." : editingExperienceId ? "Update role" : "Create role"}</button></div>
+      {error && <p role="alert" className="mt-4 rounded-xl border border-red-400/30 bg-red-500/10 px-3 py-2.5 text-sm text-red-200">{error}</p>}
+      <div className="mt-6 flex justify-end gap-2"><button type="button" onClick={handleClose} disabled={submitting} className="rounded-xl border border-white/10 px-4 py-2 text-sm text-slate-200">Cancel</button><button type="button" onClick={async () => { const saved = await onSave(); if (saved) setFormOpen(false); }} disabled={submitting} className="rounded-xl bg-gradient-to-r from-indigo-500 to-violet-500 px-4 py-2 text-sm font-semibold text-white disabled:opacity-60">{submitting ? "Saving..." : editingExperienceId ? "Update role" : "Create role"}</button></div>
       </div></div>}
 
       <div className="mt-6">

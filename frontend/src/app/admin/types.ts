@@ -31,6 +31,15 @@ export type ProjectTechnology = {
   order: number;
 };
 
+export type ProjectCaseStudy = {
+  problem?: string | null;
+  approach?: string | null;
+  solution?: string | null;
+  implementation?: string | null;
+  execution?: string | null;
+  results?: string | null;
+};
+
 export type ProjectContent = {
   id: string;
   title: string;
@@ -42,6 +51,8 @@ export type ProjectContent = {
   repoUrl?: string | null;
   caseStudyLink?: string | null;
   technologies?: ProjectTechnology[];
+  caseStudy?: ProjectCaseStudy | null;
+  gallery?: { imageUrl: string; caption?: string | null }[];
 };
 
 export type SkillContent = {
@@ -121,6 +132,14 @@ export type ProjectDraft = {
   repoUrl: string;
   caseStudyLink: string;
   technologies: string;
+  caseStudyProblem: string;
+  caseStudyApproach: string;
+  caseStudySolution: string;
+  caseStudyImplementation: string;
+  caseStudyExecution: string;
+  caseStudyResults: string;
+  coreFeatures: string[];
+  gallery: string;
 };
 
 export type SkillDraft = {

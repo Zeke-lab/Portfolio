@@ -35,6 +35,14 @@ const EMPTY_PROJECT: ProjectDraft = {
   repoUrl: "",
   caseStudyLink: "",
   technologies: "",
+  caseStudyProblem: "",
+  caseStudyApproach: "",
+  caseStudySolution: "",
+  caseStudyImplementation: "",
+  caseStudyExecution: "",
+  caseStudyResults: "",
+  coreFeatures: [""],
+  gallery: "",
 };
 
 const EMPTY_SKILL: SkillDraft = { category: "", name: "", icon: "" };
@@ -196,12 +204,20 @@ export function useAdminDashboard() {
       title: project.title ?? "",
       subtitle: project.subtitle ?? "",
       summary: project.summary ?? "",
-      description: project.description ?? "",
+      description: project.description ?? project.caseStudy?.problem ?? "",
       imageUrl: project.imageUrl ?? "",
       liveUrl: project.liveUrl ?? "",
       repoUrl: project.repoUrl ?? "",
       caseStudyLink: project.caseStudyLink ?? "",
       technologies: (project.technologies ?? []).map((tech: any) => tech.name).join(", "),
+      caseStudyProblem: project.caseStudy?.problem ?? project.description ?? "",
+      caseStudyApproach: project.caseStudy?.approach ?? "",
+      caseStudySolution: project.caseStudy?.solution ?? "",
+      caseStudyImplementation: project.caseStudy?.implementation ?? "",
+      caseStudyExecution: project.caseStudy?.execution ?? "",
+      caseStudyResults: project.caseStudy?.results ?? "",
+      coreFeatures: (project.caseStudy?.features ?? []).map((feature: any) => feature.title),
+      gallery: (project.gallery ?? []).map((image: any) => image.imageUrl).join("\n"),
     });
   };
 
@@ -405,6 +421,16 @@ export function useAdminDashboard() {
         repoUrl: draftProject.repoUrl,
         caseStudyLink: draftProject.caseStudyLink || "",
         technologies: draftProject.technologies.split(",").map((item) => item.trim()).filter(Boolean),
+        caseStudy: {
+          problem: draftProject.description,
+          approach: draftProject.caseStudyApproach,
+          solution: draftProject.caseStudySolution,
+          implementation: draftProject.caseStudyImplementation,
+          execution: draftProject.caseStudyExecution,
+          results: draftProject.caseStudyResults,
+          features: draftProject.coreFeatures.filter((feature) => feature.trim()),
+        },
+        gallery: draftProject.gallery.split("\n").map((imageUrl) => imageUrl.trim()).filter(Boolean).map((imageUrl) => ({ imageUrl })),
       };
 
       if (editingProjectId) {
@@ -452,12 +478,12 @@ export function useAdminDashboard() {
     }
   };
 
-  const saveExperience = async () => {
-    if (!token) return;
+  const saveExperience = async (): Promise<boolean> => {
+    if (!token) return false;
 
     if (!draftExperience.startDate || !draftExperience.startDate.trim()) {
       setError("Start month is required for experience entries.");
-      return;
+      return false;
     }
 
     setSubmitting(true);
@@ -482,8 +508,10 @@ export function useAdminDashboard() {
 
       resetExperienceDraft();
       await fetchAdminContent(token);
+      return true;
     } catch (submitError) {
       setError(submitError instanceof Error ? submitError.message : "Unable to save experience");
+      return false;
     } finally {
       setSubmitting(false);
     }

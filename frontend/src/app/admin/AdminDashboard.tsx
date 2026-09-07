@@ -162,6 +162,7 @@ export default function AdminDashboard() {
             editingExperienceId={state.editingExperienceId}
             experience={state.content?.experience ?? []}
             submitting={state.submitting}
+            error={state.error}
             setDraftExperience={state.setDraftExperience}
             onSave={state.saveExperience}
             onEdit={state.startEditExperience}

@@ -53,7 +53,8 @@ export function getPortfolioRepository() {
         orderBy: [{ featured: "desc" }, { createdAt: "asc" }],
         include: {
           technologies: { orderBy: { order: "asc" } },
-          caseStudy: { where: published },
+          caseStudy: { where: published, include: { features: { orderBy: { order: "asc" } } } },
+          gallery: { orderBy: { order: "asc" } },
         },
       });
     },

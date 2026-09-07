@@ -33,6 +33,19 @@ export const projectCreateSchema = z.object({
   repoUrl: optionalString,
   caseStudyLink: optionalString,
   technologies: z.array(z.string()).optional().default([]),
+  gallery: z.array(z.object({
+    imageUrl: z.string().min(1),
+    caption: optionalString,
+  })).optional().default([]),
+  caseStudy: z.object({
+    problem: optionalString,
+    approach: optionalString,
+    solution: optionalString,
+    implementation: optionalString,
+    execution: optionalString,
+    results: optionalString,
+    features: z.array(z.string()).optional().default([]),
+  }).optional(),
 });
 
 export const projectUpdateSchema = projectCreateSchema;
@@ -50,7 +63,7 @@ export const experienceCreateSchema = z.object({
   role: z.string().min(1),
   location: optionalString,
   startDate: optionalString,
-  endDate: optionalString,
+  endDate: optionalString.nullable(),
   description: z.string().min(1),
   bullets: z.array(z.string()).optional().default([]),
 });

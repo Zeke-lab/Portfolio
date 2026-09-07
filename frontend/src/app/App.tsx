@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { Icon as IconifyIcon } from "@iconify/react";
 import { motion } from "motion/react";
 import {
   Sun, Moon, Menu, X, Download, ArrowRight, ExternalLink,
@@ -9,8 +10,7 @@ import {
 } from "lucide-react";
 import { fetchPortfolioContent, submitContactMessage, type PortfolioView, type ApiProfile } from "./portfolio/api";
 import AdminDashboard from "./admin/AdminDashboard";
-import { getSkillIcon } from "./skillIcons";
-import { iconifyUrl } from "./admin/api/iconApi";
+import { getSkillIcon, getSkillIconIdentifier } from "./skillIcons";
 
 // ─── global scroll helper ─────────────────────────────────────────────────────
 const go = (id: string) =>
@@ -58,7 +58,7 @@ const DARK_SECTION = "bg-gradient-to-b from-background via-[#050819] to-backgrou
 const DARK_SECTION_ALT = "bg-gradient-to-b from-background via-[#050819] to-background";
 
 // ─── Navigation ───────────────────────────────────────────────────────────────
-function Nav({ dark, setDark, profile }: { dark: boolean; setDark: (v: boolean) => void; profile?: ApiProfile | null }) {
+function Nav({ dark, setDark, profile, onNavigateHome }: { dark: boolean; setDark: (v: boolean) => void; profile?: ApiProfile | null; onNavigateHome?: (id: string) => void }) {
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
@@ -68,13 +68,19 @@ function Nav({ dark, setDark, profile }: { dark: boolean; setDark: (v: boolean) 
     return () => window.removeEventListener("scroll", fn);
   }, []);
 
-  const navGo = (id: string) => { go(id); setOpen(false); };
+  const navGo = (id: string) => {
+    if (window.location.pathname.startsWith("/case-study/") && onNavigateHome) {
+      onNavigateHome(id);
+    } else {
+      go(id);
+    }
+    setOpen(false);
+  };
 
   const links = [
     { label: "About", id: "about" },
     { label: "Skills", id: "techstack" },
     { label: "Projects", id: "projects" },
-    { label: "Case Studies", id: "casestudy" },
     { label: "Experience", id: "experience" },
     { label: "Contact", id: "contact" },
   ];
@@ -427,17 +433,16 @@ function About({ profile }: { profile?: ApiProfile | null }) {
 }
 
 // ─── Projects ─────────────────────────────────────────────────────────────────
-function Projects({ dark, projects }: { dark: boolean; projects: PortfolioView["projects"] }) {
+function Projects({
+  dark,
+  projects,
+  onViewCaseStudy,
+}: {
+  dark: boolean;
+  projects: PortfolioView["projects"];
+  onViewCaseStudy: (index: number) => void;
+}) {
   const sectionClass = dark ? DARK_SECTION : "bg-[#f7f9ff]";
-
-  const getProjectNotes = (project: PortfolioView["projects"][number]) => {
-    const notes = (project.description ?? "")
-      .split(/\n+/)
-      .map((line) => line.replace(/^[-•*]\s*/, "").trim())
-      .filter(Boolean);
-
-    return notes;
-  };
 
   return (
     <section id="projects" className={`py-28 md:py-36 ${sectionClass}`}>
@@ -457,108 +462,60 @@ function Projects({ dark, projects }: { dark: boolean; projects: PortfolioView["
             Projects That Ship
           </h2>
           <p className="text-[15px] text-muted-foreground max-w-xl mx-auto" style={FF_BODY}>
-            Four production systems spanning SaaS, data infrastructure, AI, and open-source DevOps.
+            A simple, clean project list with a clear story behind each build.
           </p>
         </motion.div>
 
-        <div className="space-y-8">
+        <div className="grid gap-6 lg:grid-cols-2 xl:grid-cols-3">
           {projects.map((p, i) => (
             <motion.div
               key={p.title}
-              initial={{ opacity: 0, y: 40 }}
+              initial={{ opacity: 0, y: 28 }}
               whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-60px" }}
-              transition={{ duration: 0.6 }}
+              whileHover={{ scale: 1.03 }}
+              viewport={{ once: true, margin: "-40px" }}
+              transition={{ duration: 0.45, delay: i * 0.04, scale: { type: "spring", stiffness: 260, damping: 24 } }}
+              className="h-full"
             >
-              <Glass className="overflow-hidden group hover:border-white/[0.12] transition-all duration-300">
-                <div className={`flex flex-col ${i % 2 === 0 ? "lg:flex-row" : "lg:flex-row-reverse"}`}>
-                  {/* Image */}
-                  <div className="lg:w-[52%] relative bg-[#080b1c]">
-                    <img
-                      src={p.img}
-                      alt={p.title}
-                      className="w-full h-64 lg:h-full object-cover opacity-75 group-hover:opacity-90 transition-opacity duration-500"
-                    />
-                    <div className={`absolute inset-0 bg-gradient-to-br ${p.accentFrom}/15 ${p.accentTo}/10`} />
-                    {/* Metric badge */}
-                    <div className="absolute bottom-4 left-4">
-                      <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-[12px] font-semibold rounded-xl border ${p.badge}`} style={FF_MONO}>
-                        <span className="w-1.5 h-1.5 rounded-full bg-current" />
-                        {p.metric}
-                      </span>
-                    </div>
+              <Glass className="group relative overflow-hidden h-full transition-[border-color,background-color,box-shadow] duration-300 hover:border-white/[0.16] hover:bg-white/[0.035] hover:shadow-2xl hover:shadow-indigo-950/30">
+                <div className="relative overflow-hidden">
+                  <img src={p.img} alt={p.title} className="h-56 w-full object-cover transition-transform duration-500 ease-out group-hover:scale-110" />
+                  <div className={`absolute inset-0 bg-gradient-to-br ${p.accentFrom}/10 ${p.accentTo}/15`} />
+                </div>
+
+                <div className="p-5">
+                  <div className="mb-2 text-[11px] uppercase tracking-[0.18em] text-muted-foreground" style={FF_BODY}>
+                    {p.subtitle}
                   </div>
 
-                  {/* Content */}
-                  <div className="lg:w-[48%] p-8 md:p-10 flex flex-col justify-center">
-                    <div className="mb-1">
-                      <span className="text-[12px] font-semibold text-muted-foreground uppercase tracking-widest" style={FF_BODY}>
-                        {p.subtitle}
+                  <h3 className="text-[22px] font-extrabold text-foreground mb-3" style={FF_DISPLAY}>
+                    {p.title}
+                  </h3>
+
+                  <p className="text-[14px] leading-[1.75] text-muted-foreground mb-4" style={FF_BODY}>
+                    {p.summary || p.desc}
+                  </p>
+
+                  <div className="flex flex-wrap gap-2 mb-5">
+                    {p.tech.slice(0, 4).map((t) => (
+                      <span
+                        key={t}
+                        className="px-2.5 py-1 text-[11px] text-muted-foreground bg-white/[0.04] border border-white/[0.07] rounded-lg"
+                        style={FF_MONO}
+                      >
+                        {t}
                       </span>
-                    </div>
-                    <h3
-                      className="text-2xl md:text-3xl font-extrabold text-foreground mb-4 tracking-tight"
-                      style={FF_DISPLAY}
-                    >
-                      {p.title}
-                    </h3>
-                    <p className="text-[14px] text-muted-foreground leading-[1.75] mb-3 whitespace-pre-line" style={FF_BODY}>
-                      {p.summary || p.desc}
-                    </p>
-
-                    {getProjectNotes(p).length > 0 && (
-                      <ul className="space-y-2 mb-6">
-                        {getProjectNotes(p).map((f) => (
-                          <li key={f} className="flex items-start gap-2.5 text-[13.5px] text-muted-foreground" style={FF_BODY}>
-                            <CheckCircle size={14} className="text-indigo-400 mt-0.5 shrink-0" />
-                            <span>{f}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    )}
-
-                    <div className="flex flex-wrap gap-2 mb-6">
-                      {p.tech.map((t) => (
-                        <span
-                          key={t}
-                          className="px-2.5 py-1 text-[12px] text-muted-foreground bg-white/[0.04] border border-white/[0.07] rounded-lg"
-                          style={FF_MONO}
-                        >
-                          {t}
-                        </span>
-                      ))}
-                    </div>
-
-                    <div className="flex flex-wrap gap-2">
-                      {p.liveUrl ? (
-                        <a
-                          href={p.liveUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="inline-flex items-center gap-1.5 px-4 py-2 text-[13px] font-semibold bg-gradient-to-r from-indigo-500 to-violet-600 text-white rounded-xl hover:opacity-90 transition-all shadow-md shadow-indigo-500/20"
-                          style={FF_DISPLAY}
-                        >
-                          <Globe size={13} /> Live Demo
-                        </a>
-                      ) : null}
-
-                      {p.repoUrl ? (
-                        <a
-                          href={p.repoUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="inline-flex items-center gap-1.5 px-4 py-2 text-[13px] text-muted-foreground border border-white/[0.1] rounded-xl hover:bg-white/[0.05] hover:text-foreground transition-all"
-                          style={FF_DISPLAY}
-                        >
-                          <Github size={13} /> GitHub
-                        </a>
-                      ) : null}
-
-                      <button onClick={() => go("casestudy")} className="inline-flex items-center gap-1.5 px-4 py-2 text-[13px] text-muted-foreground border border-white/[0.1] rounded-xl hover:bg-white/[0.05] hover:text-foreground transition-all" style={FF_DISPLAY}>
-                        <ExternalLink size={13} /> Case Study
-                      </button>
-                    </div>
+                    ))}
                   </div>
+
+                  <button
+                    onClick={() => onViewCaseStudy(i)}
+                    className="inline-flex items-center gap-2 px-4 py-2.5 text-[13px] font-semibold bg-gradient-to-r from-indigo-500 to-violet-600 text-white rounded-xl hover:opacity-90 transition-all shadow-lg shadow-indigo-500/20"
+                    style={FF_DISPLAY}
+                  >
+                    <ExternalLink size={13} />
+                    View Case Study
+                  </button>
                 </div>
               </Glass>
             </motion.div>
@@ -570,46 +527,90 @@ function Projects({ dark, projects }: { dark: boolean; projects: PortfolioView["
 }
 
 // ─── Case Study ───────────────────────────────────────────────────────────────
-function CaseStudy({ dark, caseStudy }: { dark: boolean; caseStudy: PortfolioView["caseStudy"] }) {
+function CaseStudy({
+  dark,
+  project,
+  onBack,
+}: {
+  dark: boolean;
+  project: PortfolioView["projects"][number] | null;
+  onBack?: () => void;
+}) {
   const sectionClass = dark ? DARK_SECTION_ALT : LIGHT_SECTION_ALT;
 
+  if (!project) {
+    return null;
+  }
+
+  const gallery = project.gallery.length > 0 ? project.gallery : [{ imageUrl: project.img, caption: null }];
+  const detailCards = project.caseStudy.filter((step) => step.tag !== "Problem");
+
   return (
-    <section id="casestudy" className={`py-28 md:py-36 ${sectionClass}`}>
+    <section className={`min-h-screen py-28 md:py-36 ${sectionClass}`}>
       <div className="max-w-[1200px] mx-auto px-6">
+        {onBack ? (
+          <button
+            onClick={onBack}
+            className="mb-10 inline-flex items-center gap-2 text-[13px] font-semibold text-muted-foreground hover:text-foreground transition-colors"
+            style={FF_DISPLAY}
+          >
+            <ArrowRight size={14} className="rotate-180" />
+            Back to Projects
+          </button>
+        ) : null}
         <motion.div
           initial={{ opacity: 0, y: 40 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-80px" }}
           transition={{ duration: 0.6 }}
-          className="text-center mb-14"
+          className="mb-14"
         >
           <Eyebrow text="Case Study" />
           <h2
             className="text-4xl md:text-[3.2rem] font-extrabold text-foreground mb-4 tracking-tight"
             style={FF_DISPLAY}
           >
-            [YOUR CASE STUDY TITLE]
-            <br />
-            <span className="bg-gradient-to-r from-indigo-400 to-cyan-400 bg-clip-text text-transparent">
-              [YOUR CASE STUDY HIGHLIGHT]
-            </span>
+            {project.title}
           </h2>
-          <p className="text-[15px] text-muted-foreground max-w-2xl mx-auto" style={FF_BODY}>
-            Replace this case study copy with your real project story, results, and approach.
+          <p className="text-[15px] text-muted-foreground max-w-3xl" style={FF_BODY}>
+            {project.summary || project.desc}
           </p>
         </motion.div>
 
-        {/* Steps */}
+        <div className="grid lg:grid-cols-[1.2fr_0.8fr] gap-6 mb-8">
+          <Glass className="p-7">
+            <p className="mb-3 text-[11px] uppercase tracking-[0.18em] text-indigo-300" style={FF_BODY}>
+              Context
+            </p>
+            <p className="text-[15px] leading-[1.9] text-muted-foreground" style={FF_BODY}>
+              {project.caseStudy.find((step) => step.tag === "Problem")?.body || project.description || "This project was built to solve a real product need, improve workflow, and deliver a cleaner experience for end users."}
+            </p>
+          </Glass>
+
+          <Glass className="p-7">
+            <p className="mb-3 text-[11px] uppercase tracking-[0.18em] text-indigo-300" style={FF_BODY}>
+              Technology Stack
+            </p>
+            <div className="flex flex-wrap gap-2">
+              {project.tech.map((t) => (
+                <span key={t} className="tech-stack-tag px-2.5 py-1 text-[11px] rounded-lg" style={FF_MONO}>
+                  {t}
+                </span>
+              ))}
+            </div>
+          </Glass>
+        </div>
+
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4 mb-10">
-          {caseStudy.map((step, i) => (
+          {detailCards.map((step, i) => (
             <motion.div
-              key={step.phase}
-              initial={{ opacity: 0, y: 30 }}
+              key={`${step.tag}-${i}`}
+              initial={{ opacity: 0, y: 28 }}
               whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-60px" }}
-              transition={{ duration: 0.45, delay: i * 0.07 }}
+              viewport={{ once: true, margin: "-40px" }}
+              transition={{ duration: 0.45, delay: i * 0.06 }}
             >
-              <Glass className="p-6 h-full hover:bg-white/[0.05] transition-all">
+              <Glass className="p-6 h-full hover:bg-white/[0.04] transition-all">
                 <div className="flex items-center gap-2.5 mb-3">
                   <span className="text-[11px] text-muted-foreground/40" style={FF_MONO}>{step.phase}</span>
                   <span className="px-2.5 py-0.5 text-[11px] font-bold text-indigo-300 bg-indigo-500/[0.08] border border-indigo-500/20 rounded-full uppercase tracking-wide">
@@ -623,49 +624,59 @@ function CaseStudy({ dark, caseStudy }: { dark: boolean; caseStudy: PortfolioVie
           ))}
         </div>
 
-        {/* Architecture diagram */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-60px" }}
-          transition={{ duration: 0.6 }}
-        >
-          <Glass className="p-8">
-            <div className="flex items-center gap-2 mb-7">
-              <Terminal size={14} className="text-muted-foreground/50" />
-              <span className="text-[11px] font-mono text-muted-foreground/40 uppercase tracking-widest">System Architecture</span>
-            </div>
-            <div className="flex flex-col items-center gap-2.5">
-              <div className="px-7 py-3 bg-cyan-500/[0.08] border border-cyan-500/20 rounded-xl text-[13px] text-cyan-400" style={FF_MONO}>
-                Client Browser · CDN Edge (Cloudflare)
+        {project.features.length > 0 && <div className="mb-10">
+          <div className="mb-5">
+            <p className="text-[11px] uppercase tracking-[0.18em] text-indigo-300" style={FF_BODY}>Core Features</p>
+          </div>
+          <div className="grid md:grid-cols-2 gap-3">
+            {project.features.map((feature) => (
+              <div key={feature} className="flex items-start gap-2.5 rounded-2xl border border-white/[0.08] bg-white/[0.02] p-4 text-[14px] text-muted-foreground" style={FF_BODY}>
+                <CheckCircle size={14} className="text-indigo-400 mt-0.5 shrink-0" />
+                <span>{feature}</span>
               </div>
-              <div className="w-px h-4 bg-gradient-to-b from-cyan-500/40 to-indigo-500/40" />
-              <div className="px-7 py-3 bg-indigo-500/[0.08] border border-indigo-500/20 rounded-xl text-[13px] text-indigo-400" style={FF_MONO}>
-                API Gateway · AWS ALB · Rate Limiter
+            ))}
+          </div>
+        </div>}
+
+        <div className="mb-10">
+          <div className="mb-5">
+            <p className="text-[11px] uppercase tracking-[0.18em] text-indigo-300" style={FF_BODY}>Project Gallery</p>
+          </div>
+          <div className="grid md:grid-cols-3 gap-4">
+            {gallery.map((image, index) => (
+              <div key={`${image.imageUrl}-${index}`} className="overflow-hidden rounded-2xl border border-white/[0.08] bg-white/[0.02]">
+                <img src={image.imageUrl} alt={image.caption || `${project.title} screenshot ${index + 1}`} className="h-52 w-full object-cover" />
+                {image.caption ? <p className="px-3 py-2 text-xs text-muted-foreground" style={FF_BODY}>{image.caption}</p> : null}
               </div>
-              <div className="flex gap-8">
-                {[0, 1, 2, 3].map((n) => (
-                  <div key={n} className="w-px h-5 bg-gradient-to-b from-indigo-500/30 to-violet-500/30" />
-                ))}
-              </div>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-2 w-full max-w-2xl">
-                {["Auth Service", "User Service", "Workflow Engine", "Notification Svc"].map((s) => (
-                  <div key={s} className="px-3 py-2.5 bg-violet-500/[0.08] border border-violet-500/20 rounded-xl text-[12px] text-violet-400 text-center" style={FF_MONO}>{s}</div>
-                ))}
-              </div>
-              <div className="flex gap-8">
-                {[0, 1, 2, 3].map((n) => (
-                  <div key={n} className="w-px h-5 bg-gradient-to-b from-violet-500/30 to-emerald-500/30" />
-                ))}
-              </div>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-2 w-full max-w-2xl">
-                {["PostgreSQL", "Redis Cache", "Kafka Events", "S3 Storage"].map((s) => (
-                  <div key={s} className="px-3 py-2.5 bg-emerald-500/[0.08] border border-emerald-500/20 rounded-xl text-[12px] text-emerald-400 text-center" style={FF_MONO}>{s}</div>
-                ))}
-              </div>
-            </div>
-          </Glass>
-        </motion.div>
+            ))}
+          </div>
+        </div>
+
+        <div className="flex flex-wrap gap-3">
+          {project.liveUrl ? (
+            <a
+              href={project.liveUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 px-5 py-3 text-[13px] font-semibold bg-gradient-to-r from-indigo-500 to-violet-600 text-white rounded-xl hover:opacity-90 transition-all"
+              style={FF_DISPLAY}
+            >
+              <Globe size={14} /> Explore Live
+            </a>
+          ) : null}
+
+          {project.repoUrl ? (
+            <a
+              href={project.repoUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 px-5 py-3 text-[13px] text-muted-foreground border border-white/[0.1] rounded-xl hover:bg-white/[0.05] hover:text-foreground transition-all"
+              style={FF_DISPLAY}
+            >
+              <Github size={14} /> GitHub
+            </a>
+          ) : null}
+        </div>
       </div>
     </section>
   );
@@ -933,18 +944,18 @@ function TechStack({ dark, techGrid }: { dark: boolean; techGrid: PortfolioView[
                 {cat}
               </p>
 
-              <ul className="space-y-3">
+              <ul className="space-y-3.5">
                 {items.map((item) => {
-                  const Icon = getSkillIcon(item.icon);
+                  const iconName = getSkillIconIdentifier(item.icon, item.name);
+                  const Icon = getSkillIcon(iconName);
                   return (
                   <li
                     key={item.name}
-                    className="group flex items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.02] px-3 py-2 text-[15px] text-white/90 transition-all duration-200 hover:border-indigo-400/30 hover:bg-white/[0.06] hover:shadow-[0_0_30px_rgba(99,102,241,0.12)] hover:backdrop-blur-sm md:text-[18px]"
+                    className={`group flex items-center gap-3.5 rounded-2xl border border-white/10 bg-white/[0.02] px-3.5 py-2.5 text-[17px] ${dark ? "text-white/90" : "text-slate-900"} transition-all duration-200 hover:border-indigo-400/30 hover:bg-white/[0.06] hover:shadow-[0_0_30px_rgba(99,102,241,0.12)] hover:backdrop-blur-sm md:text-[19px]`}
                     style={FF_DISPLAY}
                   >
-                    <span className={`h-2.5 w-2.5 shrink-0 rounded-full ${dot}`} />
-                    {iconifyUrl(item.icon) ? <img src={iconifyUrl(item.icon) ?? ""} alt="" className="h-5 w-5 shrink-0" /> : <Icon size={18} className="shrink-0 text-white/60" />}
-                    <span>{item.name}</span>
+                    {iconName?.includes(":") ? <IconifyIcon icon={iconName} width={28} height={28} color="#a5b4fc" aria-hidden="true" className="shrink-0" /> : <Icon size={28} className="shrink-0 text-white/60" />}
+                    <span className="min-w-0 flex-1">{item.name}</span>
                   </li>
                   );
                 })}
@@ -1250,6 +1261,8 @@ function Footer({ profile }: { profile?: ApiProfile | null }) {
 export default function App() {
   const [dark, setDark] = useState(true);
   const [portfolio, setPortfolio] = useState<PortfolioView | null>(null);
+  const [selectedProjectIndex, setSelectedProjectIndex] = useState(0);
+  const [currentPath, setCurrentPath] = useState(window.location.pathname);
   const [loadError, setLoadError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -1258,13 +1271,32 @@ export default function App() {
   }, [dark]);
 
   useEffect(() => {
-    fetchPortfolioContent().then(setPortfolio).catch((error: unknown) => {
+    const handlePopState = () => setCurrentPath(window.location.pathname);
+    window.addEventListener("popstate", handlePopState);
+    return () => window.removeEventListener("popstate", handlePopState);
+  }, []);
+
+  useEffect(() => {
+    fetchPortfolioContent().then((content) => {
+      setPortfolio(content);
+      if (content.projects.length > 0) {
+        setSelectedProjectIndex(0);
+      }
+    }).catch((error: unknown) => {
       setLoadError(error instanceof Error ? error.message : "Unable to load portfolio content.");
     });
   }, []);
 
-  const currentPath = window.location.pathname;
+  const caseStudyMatch = currentPath.match(/^\/case-study\/(\d+)\/?$/);
+  const routeProjectIndex = caseStudyMatch ? Number(caseStudyMatch[1]) : selectedProjectIndex;
+  const activeProject = portfolio?.projects[routeProjectIndex] ?? null;
   const isAdminRoute = currentPath === "/admin" || currentPath.startsWith("/admin/") || new URLSearchParams(window.location.search).get("admin") === "1";
+
+  const navigateHome = (id = "home") => {
+    window.history.pushState({}, "", "/");
+    setCurrentPath("/");
+    window.requestAnimationFrame(() => go(id));
+  };
 
   if (isAdminRoute) {
     return <AdminDashboard />;
@@ -1339,14 +1371,32 @@ export default function App() {
     );
   }
 
+  if (caseStudyMatch) {
+    return (
+      <div className="min-h-screen bg-background text-foreground antialiased" style={FF_BODY}>
+        <Nav dark={dark} setDark={setDark} profile={portfolio.profile} onNavigateHome={navigateHome} />
+        <CaseStudy dark={dark} project={activeProject} onBack={() => navigateHome("projects")} />
+        <Footer profile={portfolio.profile} />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-background text-foreground antialiased" style={FF_BODY}>
-      <Nav dark={dark} setDark={setDark} profile={portfolio.profile} />
+      <Nav dark={dark} setDark={setDark} profile={portfolio.profile} onNavigateHome={navigateHome} />
       <Hero profile={portfolio.profile} />
       <About profile={portfolio.profile} />
       <TechStack dark={dark} techGrid={portfolio.techGrid} />
-      <Projects dark={dark} projects={portfolio.projects} />
-      <CaseStudy dark={dark} caseStudy={portfolio.caseStudy} />
+      <Projects
+        dark={dark}
+        projects={portfolio.projects}
+        onViewCaseStudy={(index) => {
+          setSelectedProjectIndex(index);
+          window.history.pushState({}, "", `/case-study/${index}`);
+          setCurrentPath(`/case-study/${index}`);
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        }}
+      />
       <Experience dark={dark} experience={portfolio.experience} />
       <Education dark={dark} education={portfolio.education} certs={portfolio.certs} />
       <Contact dark={dark} profile={portfolio.profile} />

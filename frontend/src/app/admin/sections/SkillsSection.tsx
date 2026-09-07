@@ -1,9 +1,10 @@
 import type { SkillContent, SkillDraft } from "../types";
 import type { Dispatch, SetStateAction } from "react";
 import { useEffect, useRef, useState } from "react";
+import { Icon } from "@iconify/react";
 import { Search, X } from "lucide-react";
-import { getSkillIcon } from "../../skillIcons";
-import { iconifyUrl, searchIcons, type IconSearchResult } from "../api/iconApi";
+import { getSkillIcon, getSkillIconIdentifier } from "../../skillIcons";
+import { FEATURED_ICONS, searchIcons, type IconSearchResult } from "../api/iconApi";
 
 type Props = {
   draftSkill: SkillDraft;
@@ -17,6 +18,21 @@ type Props = {
   onCancelEdit: () => void;
   error: string | null;
 };
+
+function IconPreview({ name, label, size = 32 }: { name?: string | null; label?: string | null; size?: number }) {
+  const iconName = getSkillIconIdentifier(name, label);
+  const Icon = getSkillIcon(iconName);
+
+  if (!iconName?.includes(":")) {
+    return <Icon size={size} className="text-indigo-300" />;
+  }
+
+  return <IconifyIcon icon={iconName} width={size} height={size} />;
+}
+
+function IconifyIcon({ icon, width, height }: { icon: string; width: number; height: number }) {
+  return <Icon icon={icon} width={width} height={height} color="#a5b4fc" aria-hidden="true" />;
+}
 
 function IconPicker({ value, onChange }: { value: string; onChange: (value: string) => void }) {
   const [query, setQuery] = useState("react");
@@ -61,6 +77,20 @@ function IconPicker({ value, onChange }: { value: string; onChange: (value: stri
         </div>
       </label>
 
+      <div className="mt-3 flex flex-wrap gap-2">
+        {FEATURED_ICONS.map((icon) => (
+          <button
+            key={icon.name}
+            type="button"
+            onClick={() => onChange(icon.name)}
+            className={`inline-flex items-center gap-2 rounded-lg border px-2.5 py-1.5 text-xs transition-colors ${value === icon.name ? "border-indigo-300 bg-indigo-500/20 text-indigo-100" : "border-white/10 bg-slate-900/60 text-slate-300 hover:border-indigo-300/50 hover:bg-white/[0.06]"}`}
+          >
+            <IconPreview name={icon.name} size={16} />
+            {icon.iconName === "google" ? "Google" : icon.iconName[0].toUpperCase() + icon.iconName.slice(1)}
+          </button>
+        ))}
+      </div>
+
       <div className="mt-3 grid grid-cols-4 gap-2 sm:grid-cols-6 md:grid-cols-8">
         {results.map((icon) => (
           <button
@@ -70,7 +100,7 @@ function IconPicker({ value, onChange }: { value: string; onChange: (value: stri
             onClick={() => onChange(icon.name)}
             className={`flex h-14 items-center justify-center rounded-xl border transition-colors ${value === icon.name ? "border-indigo-300 bg-indigo-500/20" : "border-white/10 bg-slate-900/60 hover:border-indigo-300/50 hover:bg-white/[0.06]"}`}
           >
-            <img src={iconifyUrl(icon.name) ?? ""} alt="" className="h-7 w-7" />
+            <IconPreview name={icon.name} />
           </button>
         ))}
       </div>
@@ -82,7 +112,7 @@ function IconPicker({ value, onChange }: { value: string; onChange: (value: stri
       {value && (
         <div className="mt-2 flex items-center gap-2 text-sm text-slate-300">
           <span>Selected:</span>
-          {iconifyUrl(value) ? <img src={iconifyUrl(value) ?? ""} alt="" className="h-5 w-5" /> : (() => { const Icon = getSkillIcon(value); return <Icon size={18} className="text-indigo-300" />; })()}
+          <IconPreview name={value} size={22} />
           <span className="text-slate-400">Icon selected</span>
         </div>
       )}
@@ -180,7 +210,7 @@ export function SkillsSection({ draftSkill, editingSkillId, skills, submitting, 
           {skills.map((skill) => (
             <div key={skill.id} className="flex items-center justify-between rounded-xl border border-white/10 bg-slate-900/70 px-3 py-2">
               <div className="flex items-center gap-3">
-                {iconifyUrl(skill.icon) ? <img src={iconifyUrl(skill.icon) ?? ""} alt="" className="h-7 w-7" /> : (() => { const Icon = getSkillIcon(skill.icon); return <Icon size={20} className="text-indigo-300" />; })()}
+                <IconPreview name={skill.icon} label={skill.name} size={24} />
                 <div>
                 <p className="text-sm font-medium text-white">{skill.name}</p>
                 <p className="text-xs text-slate-400">{skill.category}</p>

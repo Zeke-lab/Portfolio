@@ -8,7 +8,16 @@ type ApiProject = {
   liveUrl: string | null;
   repoUrl: string | null;
   technologies: { name: string }[];
-  caseStudy: { problem: string | null; solution: string | null; results: string | null } | null;
+  gallery: { imageUrl: string; caption: string | null }[];
+  caseStudy: {
+    problem: string | null;
+    approach: string | null;
+    solution: string | null;
+    implementation: string | null;
+    execution: string | null;
+    results: string | null;
+    features: { title: string }[];
+  } | null;
 };
 
 export type ApiProfile = {
@@ -62,6 +71,8 @@ export type PortfolioView = {
     accentTo: string;
     badge: string;
     metric: string;
+    caseStudy: Array<{ phase: string; tag: string; title: string; body: string }>;
+    gallery: Array<{ imageUrl: string; caption: string | null }>;
   }>;
   experience: Array<{ company: string; logo: string; logoClass: string; role: string; period: string; location: string; desc: string; bullets: string[]; tech: string[]; accentColor: string; lineColor: string }>;
   education: Array<{ degree: string; university: string; period: string; focus: string[]; description: string }>;
@@ -107,8 +118,6 @@ export async function fetchPortfolioContent(): Promise<PortfolioView> {
     category,
     { ...COLORS[index % COLORS.length], chips: content.skills.filter((skill) => skill.category === category).map((skill) => skill.name) },
   ]));
-  const primaryCaseStudy = content.projects.find((project) => project.caseStudy)?.caseStudy;
-
   return {
     profile: content.profile,
     skills,
@@ -120,13 +129,21 @@ export async function fetchPortfolioContent(): Promise<PortfolioView> {
       desc: project.summary ?? project.description ?? "",
       liveUrl: project.liveUrl,
       repoUrl: project.repoUrl,
-      tech: project.technologies.map((technology) => technology.name),
-      features: [project.caseStudy?.problem, project.caseStudy?.solution].filter((value): value is string => Boolean(value)),
+      tech: project.technologies.map((technology) => technology.name),      features: project.caseStudy?.features?.map((feature) => feature.title).filter(Boolean) ?? [],
       img: project.imageUrl ?? IMAGES[index % IMAGES.length],
       accentFrom: "from-indigo-500",
       accentTo: "to-cyan-500",
       badge: "text-indigo-400 bg-indigo-500/10 border-indigo-500/20",
       metric: project.caseStudy?.results ?? "Featured Project",
+      gallery: project.gallery ?? [],
+      caseStudy: project.caseStudy ? [
+        { phase: "01", tag: "Problem", title: "Context", body: project.caseStudy.problem ?? "" },
+        { phase: "02", tag: "Approach", title: "Core Approach", body: project.caseStudy.approach ?? "" },
+        { phase: "03", tag: "Solution", title: "Solution", body: project.caseStudy.solution ?? "" },
+        { phase: "04", tag: "Implementation", title: "Build", body: project.caseStudy.implementation ?? "" },
+        { phase: "05", tag: "Execution", title: "Execution", body: project.caseStudy.execution ?? "" },
+        { phase: "06", tag: "Results", title: "Outcome", body: project.caseStudy.results ?? "" },
+      ].filter((step) => step.body) : [],
     })),
     experience: content.experience.map((item, index) => ({
       company: item.company, logo: item.company.charAt(0), logoClass: index % 2 ? "bg-indigo-600 text-white" : "bg-white text-black",
@@ -140,11 +157,7 @@ export async function fetchPortfolioContent(): Promise<PortfolioView> {
       focus: item.field ? [item.field] : [],
       description: item.description ?? "Academic background and key learning focus.",
     })),
-    caseStudy: primaryCaseStudy ? [
-      { phase: "01", tag: "Problem", title: "Challenge", body: primaryCaseStudy.problem ?? "" },
-      { phase: "02", tag: "Solution", title: "Approach", body: primaryCaseStudy.solution ?? "" },
-      { phase: "03", tag: "Results", title: "Outcome", body: primaryCaseStudy.results ?? "" },
-    ].filter((step) => step.body) : [],
+    caseStudy: [],
     techGrid: Object.fromEntries(categoryNames.map((category, index) => [category, {
       color: COLORS[index % COLORS.length].color,
       dot: COLORS[index % COLORS.length].dot,
