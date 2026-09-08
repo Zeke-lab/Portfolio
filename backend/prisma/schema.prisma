@@ -33,6 +33,7 @@ model Profile {
   email        String?       @unique
   phone        String?
   avatarUrl    String?
+  resumePhotoUrl String?
   availability String?
   featured     Boolean       @default(false)
   status       ContentStatus @default(draft)
@@ -68,6 +69,7 @@ model Project {
   imageUrl     String?
   liveUrl      String?
   repoUrl      String?
+  caseStudyLink String?
   featured     Boolean            @default(false)
   status       ContentStatus      @default(draft)
   createdAt    DateTime           @default(now())
@@ -75,6 +77,7 @@ model Project {
 
   technologies ProjectTechnology[]
   caseStudy    CaseStudy?
+  gallery      ProjectGallery[]
 
   @@index([featured])
   @@index([status])
@@ -107,6 +110,34 @@ model CaseStudy {
   updatedAt      DateTime      @updatedAt
 
   project        Project       @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  features       CaseStudyFeature[]
+}
+
+model CaseStudyFeature {
+  id          String   @id @default(cuid())
+  caseStudyId String
+  title       String
+  order       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  caseStudy   CaseStudy @relation(fields: [caseStudyId], references: [id], onDelete: Cascade)
+
+  @@index([caseStudyId, order])
+}
+
+model ProjectGallery {
+  id        String   @id @default(cuid())
+  projectId String
+  imageUrl  String
+  caption   String?
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId, order])
 }
 
 model Skill {
