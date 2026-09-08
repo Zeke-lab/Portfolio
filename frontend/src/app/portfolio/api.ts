@@ -112,6 +112,10 @@ function formatMonthYear(value?: string | null) {
   return new Intl.DateTimeFormat("en", { month: "short", year: "numeric" }).format(date);
 }
 
+function isUsableAssetUrl(value?: string | null) {
+  return Boolean(value && !value.includes("localhost:4000/uploads/") && !value.includes("127.0.0.1:4000/uploads/"));
+}
+
 export async function fetchPortfolioContent(): Promise<PortfolioView> {
   const response = await fetch(`${API_URL}/api/portfolio/content`);
   if (!response.ok) throw new Error("Unable to load portfolio content.");
@@ -141,12 +145,12 @@ export async function fetchPortfolioContent(): Promise<PortfolioView> {
       liveUrl: project.liveUrl,
       repoUrl: project.repoUrl,
       tech: project.technologies.map((technology) => technology.name),      features: project.caseStudy?.features?.map((feature) => feature.title).filter(Boolean) ?? [],
-      img: project.imageUrl ?? IMAGES[index % IMAGES.length],
+      img: isUsableAssetUrl(project.imageUrl) ? project.imageUrl! : IMAGES[index % IMAGES.length],
       accentFrom: "from-indigo-500",
       accentTo: "to-cyan-500",
       badge: "text-indigo-400 bg-indigo-500/10 border-indigo-500/20",
       metric: project.caseStudy?.results ?? "Featured Project",
-      gallery: project.gallery ?? [],
+      gallery: (project.gallery ?? []).filter((image) => isUsableAssetUrl(image.imageUrl)),
       caseStudy: project.caseStudy ? [
         { phase: "01", tag: "Problem", title: "Context", body: project.caseStudy.problem ?? "" },
         { phase: "02", tag: "Approach", title: "Core Approach", body: project.caseStudy.approach ?? "" },

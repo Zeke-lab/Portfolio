@@ -313,6 +313,7 @@ function Hero({ profile }: { profile?: ApiProfile | null }) {
 
 // ─── About ────────────────────────────────────────────────────────────────────
 function About({ profile, onDownloadResume }: { profile?: ApiProfile | null; onDownloadResume?: () => void }) {
+  const [avatarFailed, setAvatarFailed] = useState(false);
   const stats = [
     { value: "Early-career", label: "Developer stage", icon: <Zap size={16} /> },
     { value: "Full-stack", label: "Focus area", icon: <GitBranch size={16} /> },
@@ -334,11 +335,12 @@ function About({ profile, onDownloadResume }: { profile?: ApiProfile | null; onD
           <div className="relative">
             <div className="absolute -inset-3 border border-cyan-400/20 -rotate-2" aria-hidden="true" />
             <div className="relative aspect-[4/5] min-h-[360px] overflow-hidden bg-slate-900 border border-white/10">
-              {profile?.avatarUrl ? (
+              {profile?.avatarUrl && !avatarFailed ? (
                 <img
                   src={profile.avatarUrl}
                   alt={profile.fullName ? `${profile.fullName} portrait` : "Profile portrait"}
                   className="h-full w-full object-cover"
+                  onError={() => setAvatarFailed(true)}
                 />
               ) : (
                 <div className="h-full w-full flex items-center justify-center bg-slate-900 text-8xl font-extrabold text-cyan-300" style={FF_DISPLAY}>
@@ -483,7 +485,7 @@ function Projects({
             >
               <Glass className="group relative overflow-hidden h-full transition-[border-color,background-color,box-shadow] duration-300 hover:border-white/[0.16] hover:bg-white/[0.035] hover:shadow-2xl hover:shadow-indigo-950/30">
                 <div className="relative overflow-hidden">
-                  <img src={p.img} alt={p.title} className="h-56 w-full object-cover transition-transform duration-500 ease-out group-hover:scale-110" />
+                  <img src={p.img} alt={p.title} className="h-56 w-full object-cover transition-transform duration-500 ease-out group-hover:scale-110" onError={(event) => { event.currentTarget.src = "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=900&h=560&fit=crop&auto=format"; }} />
                   <div className={`absolute inset-0 bg-gradient-to-br ${p.accentFrom}/10 ${p.accentTo}/15`} />
                 </div>
 
@@ -548,62 +550,83 @@ function CaseStudy({
 
   const gallery = project.gallery.length > 0 ? project.gallery : [{ imageUrl: project.img, caption: null }];
   const detailCards = project.caseStudy.filter((step) => step.tag !== "Problem");
+  const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+  const selectedImage = gallery[selectedImageIndex] ?? gallery[0];
+  const context = project.caseStudy.find((step) => step.tag === "Problem")?.body || project.description || "This project was built to solve a real product need, improve workflow, and deliver a cleaner experience for end users.";
 
   return (
     <section className={`min-h-screen py-28 md:py-36 ${sectionClass}`}>
       <div className="max-w-[1200px] mx-auto px-6">
         {onBack ? (
-          <button
-            onClick={onBack}
-            className="mb-10 inline-flex items-center gap-2 text-[13px] font-semibold text-muted-foreground hover:text-foreground transition-colors"
-            style={FF_DISPLAY}
-          >
+          <button onClick={onBack} className="mb-10 inline-flex items-center gap-2 text-[13px] font-semibold text-muted-foreground hover:text-foreground transition-colors" style={FF_DISPLAY}>
             <ArrowRight size={14} className="rotate-180" />
             Back to Projects
           </button>
         ) : null}
-        <motion.div
-          initial={{ opacity: 0, y: 40 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-80px" }}
-          transition={{ duration: 0.6 }}
-          className="mb-14"
-        >
-          <Eyebrow text="Case Study" />
-          <h2
-            className="text-4xl md:text-[3.2rem] font-extrabold text-foreground mb-4 tracking-tight"
-            style={FF_DISPLAY}
-          >
-            {project.title}
-          </h2>
-          <p className="text-[15px] text-muted-foreground max-w-3xl" style={FF_BODY}>
-            {project.summary || project.desc}
-          </p>
-        </motion.div>
 
-        <div className="grid lg:grid-cols-[1.2fr_0.8fr] gap-6 mb-8">
-          <Glass className="p-7">
-            <p className="mb-3 text-[11px] uppercase tracking-[0.18em] text-indigo-300" style={FF_BODY}>
-              Context
-            </p>
-            <p className="text-[15px] leading-[1.9] text-muted-foreground" style={FF_BODY}>
-              {project.caseStudy.find((step) => step.tag === "Problem")?.body || project.description || "This project was built to solve a real product need, improve workflow, and deliver a cleaner experience for end users."}
-            </p>
-          </Glass>
+        <div className="grid items-start gap-10 lg:grid-cols-[1fr_0.95fr] lg:gap-16">
+              <motion.div
+                initial={{ opacity: 0, x: -30 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.6 }}
+              >
+                <Eyebrow text="Case Study" />
+                <h2 className="mb-5 text-4xl font-extrabold tracking-tight text-foreground md:text-[4.2rem] md:leading-[1.02]" style={FF_DISPLAY}>
+                  {project.title}
+                </h2>
+                <p className="mb-8 max-w-xl text-[15px] font-semibold leading-[1.7] text-foreground" style={FF_BODY}>
+                  {project.summary || project.desc}
+                </p>
 
-          <Glass className="p-7">
-            <p className="mb-3 text-[11px] uppercase tracking-[0.18em] text-indigo-300" style={FF_BODY}>
-              Technology Stack
-            </p>
-            <div className="flex flex-wrap gap-2">
-              {project.tech.map((t) => (
-                <span key={t} className="tech-stack-tag px-2.5 py-1 text-[11px] rounded-lg" style={FF_MONO}>
-                  {t}
-                </span>
-              ))}
+                <p className="mb-3 text-[11px] uppercase tracking-[0.18em] text-indigo-300" style={FF_BODY}>The Context</p>
+                <p className="max-w-xl text-[15px] leading-[1.85] text-muted-foreground" style={FF_BODY}>
+                  {context}
+                </p>
+                <div className="mt-8 border-l-2 border-indigo-500 pl-5 text-[13px] italic leading-[1.8] text-muted-foreground" style={FF_BODY}>
+                  “{project.metric || "A focused build designed around a clear user need."}”
+                </div>
+              </motion.div>
+
+              <motion.div
+                initial={{ opacity: 0, x: 30 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.6, delay: 0.1 }}
+              >
+                <div className="flex min-h-[260px] items-center justify-center overflow-hidden rounded-[30px] border border-white/[0.08] bg-white/[0.045] p-5 shadow-2xl shadow-indigo-950/30 sm:min-h-[360px] sm:p-8">
+                  <img
+                    src={selectedImage.imageUrl}
+                    alt={selectedImage.caption || `${project.title} featured screenshot`}
+                    className="block h-auto max-h-[560px] max-w-full rounded-[18px] object-contain"
+                    onError={(event) => { event.currentTarget.src = project.img; }}
+                  />
+                </div>
+                <div className="mt-4 flex gap-3 overflow-x-auto pb-1">
+                  {gallery.map((image, index) => (
+                    <button
+                      key={`${image.imageUrl}-${index}`}
+                      type="button"
+                      onClick={() => setSelectedImageIndex(index)}
+                      className={`flex h-16 w-20 shrink-0 items-center justify-center overflow-hidden rounded-xl border-2 bg-white/[0.04] p-1 transition-all ${index === selectedImageIndex ? "border-indigo-400 opacity-100" : "border-white/[0.08] opacity-65 hover:opacity-100"}`}
+                      aria-label={`Show ${project.title} screenshot ${index + 1}`}
+                    >
+                      <img src={image.imageUrl} alt="" className="max-h-full max-w-full object-contain" onError={(event) => { event.currentTarget.style.display = "none"; }} />
+                    </button>
+                  ))}
+                </div>
+                <div className="mt-7">
+                  <p className="mb-3 text-[11px] uppercase tracking-[0.18em] text-indigo-300" style={FF_BODY}>Technology Stack</p>
+                  <div className="flex flex-wrap gap-2">
+                    {project.tech.map((t) => <span key={t} className="tech-stack-tag rounded-lg px-2.5 py-1 text-[11px]" style={FF_MONO}>{t}</span>)}
+                  </div>
+                </div>
+              </motion.div>
             </div>
-          </Glass>
-        </div>
+
+        <div className="mt-16">
+          <div className="mb-5 flex items-center gap-4">
+            <p className="text-[11px] uppercase tracking-[0.18em] text-indigo-300" style={FF_BODY}>Project Story</p>
+            <div className="h-px flex-1 bg-white/[0.08]" />
+          </div>
 
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4 mb-10">
           {detailCards.map((step, i) => (
@@ -642,18 +665,6 @@ function CaseStudy({
           </div>
         </div>}
 
-        <div className="mb-10">
-          <div className="mb-5">
-            <p className="text-[11px] uppercase tracking-[0.18em] text-indigo-300" style={FF_BODY}>Project Gallery</p>
-          </div>
-          <div className="grid md:grid-cols-3 gap-4">
-            {gallery.map((image, index) => (
-              <div key={`${image.imageUrl}-${index}`} className="overflow-hidden rounded-2xl border border-white/[0.08] bg-white/[0.02]">
-                <img src={image.imageUrl} alt={image.caption || `${project.title} screenshot ${index + 1}`} className="h-52 w-full object-cover" />
-                {image.caption ? <p className="px-3 py-2 text-xs text-muted-foreground" style={FF_BODY}>{image.caption}</p> : null}
-              </div>
-            ))}
-          </div>
         </div>
 
         <div className="flex flex-wrap gap-3">
@@ -1311,65 +1322,28 @@ export default function App() {
 
   if (!portfolio) {
     return (
-      <main className="relative min-h-screen overflow-hidden bg-background text-foreground">
-        <div className="absolute inset-0 opacity-80">
-          <div className="absolute left-[-12%] top-[-8%] h-[26rem] w-[26rem] rounded-full bg-indigo-500/20 blur-[120px]" />
-          <div className="absolute right-[-8%] top-[18%] h-[20rem] w-[20rem] rounded-full bg-violet-500/20 blur-[110px]" />
-          <div className="absolute bottom-[-12%] left-[22%] h-[22rem] w-[22rem] rounded-full bg-cyan-500/10 blur-[120px]" />
-        </div>
-
-        <div className="relative z-10 mx-auto max-w-6xl px-6 py-20">
-          <div className="mb-8 flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="h-10 w-10 animate-pulse rounded-xl bg-gradient-to-br from-indigo-500/60 to-violet-500/60 shadow-lg shadow-indigo-500/20" />
-              <div className="h-4 w-28 animate-pulse rounded-full bg-white/10" />
-            </div>
-            <div className="h-10 w-10 animate-pulse rounded-full bg-white/10" />
-          </div>
-
-          <div className="mb-10 flex items-center gap-3">
-            <div className="h-2.5 w-2.5 rounded-full bg-emerald-400 animate-pulse" />
-            <span className="text-[11px] font-semibold uppercase tracking-[0.22em] text-emerald-300/80">Loading</span>
-          </div>
-
-          <div className="mb-10 space-y-5">
-            <div className="h-4 w-36 animate-pulse rounded-full bg-emerald-500/20" />
-            <div className="h-16 w-3/4 animate-pulse rounded-2xl bg-white/10" />
-            <div className="h-7 w-1/2 animate-pulse rounded-xl bg-white/10" />
-            <div className="h-6 w-2/5 animate-pulse rounded-full bg-white/10" />
-          </div>
-
-          <div className="grid gap-6 md:grid-cols-2">
-            <div className="space-y-4 rounded-[28px] border border-white/10 bg-white/[0.03] p-6 shadow-2xl shadow-black/20">
-              <div className="h-52 w-full animate-pulse rounded-2xl bg-gradient-to-br from-white/10 via-white/5 to-transparent" />
-              <div className="h-5 w-2/3 animate-pulse rounded-full bg-white/10" />
-              <div className="h-4 w-full animate-pulse rounded-full bg-white/10" />
-              <div className="h-4 w-4/5 animate-pulse rounded-full bg-white/10" />
-              <div className="flex gap-2 pt-2">
-                <div className="h-8 w-20 animate-pulse rounded-full bg-indigo-500/20" />
-                <div className="h-8 w-24 animate-pulse rounded-full bg-violet-500/20" />
-              </div>
-            </div>
-
-            <div className="space-y-4 rounded-[28px] border border-white/10 bg-white/[0.03] p-6 shadow-2xl shadow-black/20">
-              <div className="flex items-center gap-3">
-                <div className="h-12 w-12 animate-pulse rounded-full bg-white/10" />
-                <div className="space-y-2">
-                  <div className="h-4 w-28 animate-pulse rounded-full bg-white/10" />
-                  <div className="h-3 w-20 animate-pulse rounded-full bg-white/10" />
-                </div>
-              </div>
-              <div className="space-y-3 pt-2">
-                <div className="h-4 w-full animate-pulse rounded-full bg-white/10" />
-                <div className="h-4 w-5/6 animate-pulse rounded-full bg-white/10" />
-                <div className="h-4 w-4/6 animate-pulse rounded-full bg-white/10" />
-              </div>
-              <div className="grid gap-2 pt-2 sm:grid-cols-2">
-                <div className="h-14 animate-pulse rounded-2xl bg-white/10" />
-                <div className="h-14 animate-pulse rounded-2xl bg-white/10" />
-              </div>
-            </div>
-          </div>
+      <main className="relative grid min-h-screen place-items-center overflow-hidden bg-black px-6 text-slate-400">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(28,42,92,0.16),transparent_42%)]" />
+        <div className="relative flex -translate-y-2 flex-col items-center">
+          <motion.div
+            className="relative h-48 w-48 sm:h-56 sm:w-56"
+            animate={{ rotate: [0, 360], scale: [1, 1.04, 0.98, 1] }}
+            transition={{ rotate: { duration: 8, repeat: Infinity, ease: "linear" }, scale: { duration: 3.5, repeat: Infinity, ease: "easeInOut" } }}
+          >
+            <motion.div
+              className="absolute inset-5 bg-[radial-gradient(circle_at_35%_25%,rgba(43,197,255,0.95),rgba(36,78,177,0.72)_42%,rgba(91,28,177,0.82)_75%,rgba(12,8,36,0.95))] shadow-[0_0_22px_rgba(33,145,255,0.7),0_0_70px_rgba(79,35,218,0.48)]"
+              animate={{ borderRadius: ["44% 56% 62% 38% / 42% 38% 62% 58%", "62% 38% 44% 56% / 55% 62% 38% 45%", "38% 62% 55% 45% / 62% 45% 55% 38%", "44% 56% 62% 38% / 42% 38% 62% 58%"] }}
+              transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
+            />
+            <div className="absolute inset-11 rounded-full bg-black/35 blur-xl" />
+          </motion.div>
+          <motion.p
+            className="mt-2 font-sans text-2xl font-semibold tracking-tight text-slate-500"
+            animate={{ opacity: [0.45, 0.9, 0.45] }}
+            transition={{ duration: 1.8, repeat: Infinity, ease: "easeInOut" }}
+          >
+            Loading<span className="inline-block w-8 text-left">...</span>
+          </motion.p>
         </div>
       </main>
     );
