@@ -29,12 +29,12 @@ Do these one section at a time, then run the frontend build after each task.
 - [x] **About:** add your real biography, strengths, location, and professional focus.
 - [x] **Skills and tech stack:** list only technologies you can confidently discuss; organize them by category.
 - [x] **Projects:** replace the four project placeholders with real titles, summaries, technology tags, images, live links, repository links, and measurable outcomes.
-- [ ] **Case study:** select your strongest project and document problem, research, solution, architecture, delivery process, and results.
+- [x] **Case study:** select your strongest project and document problem, research, solution, architecture, delivery process, and results; open case studies on a separate page from project cards.
 - [x] **Experience:** replace the three entries with real company, role, dates, location, achievements, and technology details.
 - [x] **Education:** add degree, institution, dates, and key areas of study.
 - [x] **Certifications:** add real certifications, issuing organizations, years, and credential links where available.
 - [x] **Contact and footer:** replace email, LinkedIn, GitHub, website, location, footer name, and copyright name; remove all `#` social links.
-- [x] **Resume:** add a final PDF resume and connect every resume/download button to it after deployment.
+- [x] **Resume:** generate a styled downloadable PDF resume from portfolio content and connect every resume/download button to it.
 
 ## Phase 2 — Quality-check the public site
 
@@ -49,7 +49,7 @@ Do these one section at a time, then run the frontend build after each task.
 Start this only after Phase 1 content is approved and stable.
 
 - [x] Configure Supabase and backend environment variables (`DATABASE_URL`, `DIRECT_URL`, `PORT`, `CORS_ORIGIN`).
-- [x] Review the existing Prisma schema against the mock content model; no schema changes were made.
+- [x] Review the existing Prisma schema against the mock content model; add and migrate the separate `resumePhotoUrl` field.
 - [x] Create and run a reusable mock-data seed script.
 - [x] Replace the backend's temporary/local repository data with Prisma queries, preserving route -> service -> repository -> Prisma separation.
 - [ ] Replace mock database records with approved personal portfolio content after Phase 1 is complete.
@@ -65,7 +65,7 @@ Start this only after Phase 1 content is approved and stable.
 - [x] Implement admin login with email/password and JWT-based protection.
 - [x] Add protected API operations for profile, projects, skills, case studies, experience, education, certifications, resumes, and contact messages.
 - [x] Build the private admin dashboard that consumes only the backend API.
-- [x] Add media upload/storage through Supabase Storage when image or resume management is needed.
+- [x] Add media upload/storage through Supabase Storage; remove the legacy local upload files and static upload route.
 - [x] Test authorization, validation, and CRUD workflows end to end.
 - [x] Admin project form includes case study link field.
 - [x] Admin education and certification forms support month-only date selection (dates normalized to first day of month).
@@ -78,7 +78,7 @@ Start this only after Phase 1 content is approved and stable.
 - [ ] Add a location field to admin education form (currently stored in DB but not editable via admin UI).
 - [ ] Replace the browser-native month picker with a custom styled month picker for consistent dark theme.
 - [x] Replace placeholder public portfolio content with approved personal data for every section.
-- [ ] Add the final resume PDF and connect the resume URL/buttons after deployment.
+- [x] Add the final generated resume PDF and connect the resume buttons.
 - [ ] Final hosting, environment, and production deployment setup.
 - [ ] Final QA for accessibility, mobile layout, and links before launch.
 - [ ] tech skill what worth with and tech stack are similar , how to fix
@@ -98,4 +98,4 @@ Start this only after Phase 1 content is approved and stable.
 
 ## Recommended next task
 
-Run the backend and frontend together, then confirm the browser displays the mock API data. If it does, remove the retired local content files.
+Configure the Supabase Storage bucket and backend secret in the deployment environment, then re-upload any assets that still reference the deleted local `backend/uploads` files.

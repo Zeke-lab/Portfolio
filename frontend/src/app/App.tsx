@@ -11,6 +11,7 @@ import {
 import { fetchPortfolioContent, submitContactMessage, type PortfolioView, type ApiProfile } from "./portfolio/api";
 import AdminDashboard from "./admin/AdminDashboard";
 import { getSkillIcon, getSkillIconIdentifier } from "./skillIcons";
+import { downloadResumePdf } from "./resumePdf";
 
 // ─── global scroll helper ─────────────────────────────────────────────────────
 const go = (id: string) =>
@@ -58,7 +59,7 @@ const DARK_SECTION = "bg-gradient-to-b from-background via-[#050819] to-backgrou
 const DARK_SECTION_ALT = "bg-gradient-to-b from-background via-[#050819] to-background";
 
 // ─── Navigation ───────────────────────────────────────────────────────────────
-function Nav({ dark, setDark, profile, onNavigateHome }: { dark: boolean; setDark: (v: boolean) => void; profile?: ApiProfile | null; onNavigateHome?: (id: string) => void }) {
+function Nav({ dark, setDark, profile, onNavigateHome, onDownloadResume }: { dark: boolean; setDark: (v: boolean) => void; profile?: ApiProfile | null; onNavigateHome?: (id: string) => void; onDownloadResume?: () => void }) {
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
@@ -123,13 +124,13 @@ function Nav({ dark, setDark, profile, onNavigateHome }: { dark: boolean; setDar
           >
             {dark ? <Sun size={15} /> : <Moon size={15} />}
           </button>
-          <a
-            href="#"
+          <button
+            onClick={onDownloadResume}
             className="inline-flex items-center gap-1.5 px-4 py-2 text-[13px] font-medium text-muted-foreground border border-white/[0.1] rounded-xl hover:bg-white/[0.05] hover:text-foreground transition-all"
           >
             <Download size={13} />
             Resume
-          </a>
+          </button>
           <button
             onClick={() => navGo("contact")}
             className="inline-flex items-center gap-1.5 px-4 py-2 text-[13px] font-semibold bg-gradient-to-r from-indigo-500 to-violet-600 text-white rounded-xl hover:opacity-90 transition-all shadow-lg shadow-indigo-500/25"
@@ -166,6 +167,9 @@ function Nav({ dark, setDark, profile, onNavigateHome }: { dark: boolean; setDar
                 className="px-4 py-2 text-sm font-semibold bg-gradient-to-r from-indigo-500 to-violet-600 text-white rounded-xl"
               >
                 Hire Me
+              </button>
+              <button onClick={onDownloadResume} className="px-4 py-2 text-sm font-semibold text-muted-foreground border border-white/[0.1] rounded-xl">
+                Resume
               </button>
             </div>
           </div>
@@ -308,7 +312,7 @@ function Hero({ profile }: { profile?: ApiProfile | null }) {
 }
 
 // ─── About ────────────────────────────────────────────────────────────────────
-function About({ profile }: { profile?: ApiProfile | null }) {
+function About({ profile, onDownloadResume }: { profile?: ApiProfile | null; onDownloadResume?: () => void }) {
   const stats = [
     { value: "Early-career", label: "Developer stage", icon: <Zap size={16} /> },
     { value: "Full-stack", label: "Focus area", icon: <GitBranch size={16} /> },
@@ -392,14 +396,14 @@ function About({ profile }: { profile?: ApiProfile | null }) {
                 Get in Touch
                 <Send size={14} />
               </button>
-              <a
-                href="#"
+              <button
+                onClick={onDownloadResume}
                 className="inline-flex items-center gap-2 px-6 py-3 border border-white/[0.1] text-muted-foreground rounded-xl font-semibold hover:bg-white/[0.05] hover:text-foreground transition-all text-sm"
                 style={FF_DISPLAY}
               >
                 <Download size={14} />
                 Resume
-              </a>
+              </button>
             </div>
           </div>
         </motion.div>
@@ -1374,7 +1378,7 @@ export default function App() {
   if (caseStudyMatch) {
     return (
       <div className="min-h-screen bg-background text-foreground antialiased" style={FF_BODY}>
-        <Nav dark={dark} setDark={setDark} profile={portfolio.profile} onNavigateHome={navigateHome} />
+        <Nav dark={dark} setDark={setDark} profile={portfolio.profile} onNavigateHome={navigateHome} onDownloadResume={() => downloadResumePdf(portfolio)} />
         <CaseStudy dark={dark} project={activeProject} onBack={() => navigateHome("projects")} />
         <Footer profile={portfolio.profile} />
       </div>
@@ -1383,9 +1387,9 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-background text-foreground antialiased" style={FF_BODY}>
-      <Nav dark={dark} setDark={setDark} profile={portfolio.profile} onNavigateHome={navigateHome} />
+      <Nav dark={dark} setDark={setDark} profile={portfolio.profile} onNavigateHome={navigateHome} onDownloadResume={() => downloadResumePdf(portfolio)} />
       <Hero profile={portfolio.profile} />
-      <About profile={portfolio.profile} />
+      <About profile={portfolio.profile} onDownloadResume={() => downloadResumePdf(portfolio)} />
       <TechStack dark={dark} techGrid={portfolio.techGrid} />
       <Projects
         dark={dark}

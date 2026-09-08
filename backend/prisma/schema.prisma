@@ -33,6 +33,7 @@ model Profile {
   email        String?       @unique
   phone        String?
   avatarUrl    String?
+  resumePhotoUrl String?
   availability String?
   featured     Boolean       @default(false)
   status       ContentStatus @default(draft)

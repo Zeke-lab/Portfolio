@@ -41,27 +41,11 @@ import {
 } from "../validators/admin.schemas.js";
 
 import multer from "multer";
-import path from "path";
-import { fileURLToPath } from "url";
 import crypto from "crypto";
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const uploadsDir = path.resolve(__dirname, "../../uploads");
-
-const storage = multer.diskStorage({
-  destination: (_req, _file, cb) => {
-    cb(null, uploadsDir);
-  },
-  filename: (_req, file, cb) => {
-    const uniqueSuffix = `${Date.now()}-${crypto.randomBytes(6).toString("hex")}`;
-    const ext = path.extname(file.originalname);
-    cb(null, `${uniqueSuffix}${ext}`);
-  },
-});
+import { getStorageBucket, getSupabaseStorage } from "../storage/supabase.js";
 
 const upload = multer({
-  storage,
+  storage: multer.memoryStorage(),
   limits: { fileSize: 15 * 1024 * 1024 }, // 15MB limit
   fileFilter: (_req, file, cb) => {
     const allowedMimeTypes = [
@@ -90,18 +74,45 @@ adminRouter.post("/upload", requireAdmin, upload.single("file"), (request, respo
     return;
   }
 
-  const host = request.get("host") || "localhost:4000";
-  const protocol = request.protocol || "http";
-  const url = `${protocol}://${host}/uploads/${request.file.filename}`;
+  const file = request.file;
 
-  response.status(201).json({
-    url,
-    fileName: request.file.originalname,
-    storedName: request.file.filename,
-    mimeType: request.file.mimetype,
-    size: request.file.size,
+  const storageClient = getSupabaseStorage();
+  if (!storageClient) {
+    response.status(503).json({ error: "Supabase Storage is not configured. Set SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY." });
+    return;
+  }
+
+  const extension = fileExtension(file.originalname, file.mimetype);
+  const storedName = `uploads/${Date.now()}-${crypto.randomBytes(6).toString("hex")}.${extension}`;
+  const bucket = getStorageBucket();
+  storageClient.from(bucket).upload(storedName, file.buffer, {
+    contentType: file.mimetype,
+    upsert: false,
+  }).then(({ data, error }) => {
+    if (error || !data) {
+      response.status(502).json({ error: error?.message ?? "Unable to upload file to Supabase Storage." });
+      return;
+    }
+
+    const { data: publicData } = storageClient.from(bucket).getPublicUrl(data.path);
+    response.status(201).json({
+      url: publicData.publicUrl,
+      fileName: file.originalname,
+      storedName: data.path,
+      mimeType: file.mimetype,
+      size: file.size,
+    });
+  }).catch(() => {
+    response.status(502).json({ error: "Unable to upload file to Supabase Storage." });
   });
 });
+
+function fileExtension(originalName: string, mimeType: string) {
+  const extension = originalName.split(".").pop()?.toLowerCase();
+  if (extension && /^[a-z0-9]+$/.test(extension)) return extension;
+
+  return mimeType.split("/")[1]?.replace("svg+xml", "svg") || "bin";
+}
 
 adminRouter.post("/login", async (request, response, next) => {
   try {

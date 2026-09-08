@@ -1,5 +1,3 @@
-import path from "path";
-import { fileURLToPath } from "url";
 import cors from "cors";
 import dotenv from "dotenv";
 import express from "express";
@@ -9,9 +7,6 @@ import { contactRouter } from "./api/contact.routes.js";
 import { portfolioRouter } from "./api/portfolio.routes.js";
 
 dotenv.config();
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
 const app = express();
 const port = Number(process.env.PORT ?? 4000);
@@ -43,11 +38,16 @@ app.use(
 );
 app.use(express.json());
 
-const uploadsDir = path.resolve(__dirname, "../uploads");
-app.use("/uploads", express.static(uploadsDir));
-
 app.get("/health", (_request, response) => {
   response.json({ ok: true, service: "portfolio-backend" });
+});
+
+app.get("/", (_request, response) => {
+  response.json({
+    service: "portfolio-backend",
+    health: "/health",
+    portfolioApi: "/api/portfolio/content",
+  });
 });
 
 app.use("/api/portfolio", portfolioRouter);

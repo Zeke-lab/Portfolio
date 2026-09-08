@@ -27,12 +27,15 @@ export type ApiProfile = {
   intro?: string | null;
   about?: string | null;
   email?: string;
+  phone?: string | null;
   location?: string | null;
   avatarUrl?: string | null;
+  resumePhotoUrl?: string | null;
   availability?: string | null;
   githubUrl?: string | null;
   linkedinUrl?: string | null;
   websiteUrl?: string | null;
+  socialLinks?: { label: string; url: string }[];
   resumes?: { fileUrl: string; label: string }[];
 };
 
@@ -118,8 +121,16 @@ export async function fetchPortfolioContent(): Promise<PortfolioView> {
     category,
     { ...COLORS[index % COLORS.length], chips: content.skills.filter((skill) => skill.category === category).map((skill) => skill.name) },
   ]));
+  const socialLinks = content.profile?.socialLinks ?? [];
+  const profile = content.profile ? {
+    ...content.profile,
+    githubUrl: content.profile.githubUrl || socialLinks.find((link) => /github/i.test(link.label))?.url || null,
+    linkedinUrl: content.profile.linkedinUrl || socialLinks.find((link) => /linkedin/i.test(link.label))?.url || null,
+    websiteUrl: content.profile.websiteUrl || socialLinks.find((link) => /website|portfolio/i.test(link.label))?.url || null,
+  } : content.profile;
+
   return {
-    profile: content.profile,
+    profile,
     skills,
     projects: content.projects.map((project, index) => ({
       title: project.title,

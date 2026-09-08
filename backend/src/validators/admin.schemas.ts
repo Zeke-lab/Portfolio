@@ -11,6 +11,7 @@ export const profileCreateSchema = z.object({
   fullName: z.string().min(1),
   headline: optionalString,
   avatarUrl: optionalString,
+  resumePhotoUrl: optionalString,
   email: optionalString,
   location: optionalString,
   availability: optionalString,

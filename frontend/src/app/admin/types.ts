@@ -17,6 +17,7 @@ export type ProfileContent = {
   fullName: string;
   headline?: string | null;
   avatarUrl?: string | null;
+  resumePhotoUrl?: string | null;
   email?: string | null;
   location?: string | null;
   availability?: string | null;
@@ -112,6 +113,7 @@ export type ProfileForm = {
   fullName: string;
   headline: string;
   avatarUrl: string;
+  resumePhotoUrl: string;
   email: string;
   location: string;
   availability: string;

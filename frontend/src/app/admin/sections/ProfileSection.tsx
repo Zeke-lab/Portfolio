@@ -6,7 +6,7 @@ type Props = {
   hasProfile: boolean;
   submitting: boolean;
   onChange: (field: keyof ProfileForm, value: string) => void;
-  onSave: () => void;
+  onSave: () => Promise<boolean>;
   onDelete: () => void;
   onUploadFile?: (file: File) => Promise<string>;
 };
@@ -15,8 +15,10 @@ export function ProfileSection({ form, hasProfile, submitting, onChange, onSave,
   const [isEditing, setIsEditing] = useState(!hasProfile);
   const [formOpen, setFormOpen] = useState(!hasProfile);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const [uploadingResumePhoto, setUploadingResumePhoto] = useState(false);
   const [uploadingDocument, setUploadingDocument] = useState(false);
   const avatarInputRef = useRef<HTMLInputElement>(null);
+  const resumePhotoInputRef = useRef<HTMLInputElement>(null);
   const documentInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -53,6 +55,20 @@ export function ProfileSection({ form, hasProfile, submitting, onChange, onSave,
     } finally {
       setUploadingDocument(false);
       if (documentInputRef.current) documentInputRef.current.value = "";
+    }
+  };
+
+  const handleResumePhotoFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file || !onUploadFile) return;
+
+    try {
+      setUploadingResumePhoto(true);
+      const url = await onUploadFile(file);
+      onChange("resumePhotoUrl", url);
+    } finally {
+      setUploadingResumePhoto(false);
+      if (resumePhotoInputRef.current) resumePhotoInputRef.current.value = "";
     }
   };
 
@@ -120,6 +136,20 @@ export function ProfileSection({ form, hasProfile, submitting, onChange, onSave,
           </div>
         </div>
 
+        <div className="block text-sm text-slate-300 md:col-span-2">
+          <span>Resume Photo <span className="text-slate-500">(separate from portfolio avatar)</span></span>
+          <div className="mt-2 flex items-center gap-4">
+            {form.resumePhotoUrl ? <img src={form.resumePhotoUrl} alt="Resume photo preview" className="h-20 w-16 rounded-lg object-cover border border-teal-400/40" /> : <div className="flex h-20 w-16 items-center justify-center rounded-lg border border-dashed border-white/20 bg-slate-900/50 text-center text-xs text-slate-400">No photo</div>}
+            <div className="flex-1">
+              <input disabled={!isEditing} value={form.resumePhotoUrl} onChange={(event) => onChange("resumePhotoUrl", event.target.value)} placeholder="File URL or upload photo below..." className="w-full rounded-xl border border-white/10 bg-slate-900/80 px-3 py-2 text-sm text-white disabled:cursor-default disabled:opacity-70" />
+              {isEditing && <div className="mt-2">
+                <input ref={resumePhotoInputRef} type="file" accept="image/*" onChange={handleResumePhotoFileChange} className="hidden" id="resume-photo-upload" />
+                <label htmlFor="resume-photo-upload" className="cursor-pointer rounded-lg border border-teal-500/30 bg-teal-500/10 px-3 py-1.5 text-xs font-semibold text-teal-300 hover:bg-teal-500/20">{uploadingResumePhoto ? "Uploading photo..." : "Upload Resume Photo"}</label>
+              </div>}
+            </div>
+          </div>
+        </div>
+
         <label className="block text-sm text-slate-300">
           Email
           <input disabled={!isEditing} value={form.email} onChange={(event) => onChange("email", event.target.value)} className="mt-2 w-full rounded-xl border border-white/10 bg-slate-900/80 px-3 py-2.5 text-white disabled:cursor-default disabled:opacity-70" />
@@ -166,7 +196,7 @@ export function ProfileSection({ form, hasProfile, submitting, onChange, onSave,
           <textarea disabled={!isEditing} value={form.about} onChange={(event) => onChange("about", event.target.value)} rows={6} placeholder="Your background, strengths, experience, and professional focus" className="mt-2 w-full rounded-xl border border-white/10 bg-slate-900/80 px-3 py-2.5 text-white disabled:cursor-default disabled:opacity-70" />
         </label>
       </div>
-      <div className="mt-6 flex justify-end gap-2">{hasProfile && <button type="button" onClick={() => { setIsEditing(false); setFormOpen(false); }} disabled={submitting} className="rounded-xl border border-white/10 px-4 py-2 text-sm text-slate-200">Cancel</button>}<button type="button" onClick={() => { onSave(); setFormOpen(false); }} disabled={submitting} className="rounded-xl bg-gradient-to-r from-indigo-500 to-violet-500 px-4 py-2 font-semibold text-white disabled:opacity-60">{submitting ? "Saving..." : hasProfile ? "Update profile" : "Create profile"}</button></div>
+      <div className="mt-6 flex justify-end gap-2">{hasProfile && <button type="button" onClick={() => { setIsEditing(false); setFormOpen(false); }} disabled={submitting} className="rounded-xl border border-white/10 px-4 py-2 text-sm text-slate-200">Cancel</button>}<button type="button" onClick={async () => { const saved = await onSave(); if (saved) { setIsEditing(false); setFormOpen(false); } }} disabled={submitting} className="rounded-xl bg-gradient-to-r from-indigo-500 to-violet-500 px-4 py-2 font-semibold text-white disabled:opacity-60">{submitting ? "Saving..." : hasProfile ? "Update profile" : "Create profile"}</button></div>
       </div></div>}
     </section>
   );

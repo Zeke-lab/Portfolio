@@ -15,6 +15,7 @@ const EMPTY_PROFILE_FORM: ProfileForm = {
   fullName: "",
   headline: "",
   avatarUrl: "",
+  resumePhotoUrl: "",
   email: "",
   location: "",
   availability: "",
@@ -135,6 +136,7 @@ export function useAdminDashboard() {
         fullName: data.profile.fullName ?? "",
         headline: data.profile.headline ?? "",
         avatarUrl: data.profile.avatarUrl ?? "",
+        resumePhotoUrl: data.profile.resumePhotoUrl ?? "",
         email: data.profile.email ?? "",
         location: data.profile.location ?? "",
         availability: data.profile.availability ?? "",
@@ -369,8 +371,8 @@ export function useAdminDashboard() {
     }
   };
 
-  const saveProfile = async () => {
-    if (!token) return;
+  const saveProfile = async (): Promise<boolean> => {
+    if (!token) return false;
 
     setSubmitting(true);
     setError(null);
@@ -380,6 +382,7 @@ export function useAdminDashboard() {
         fullName: form.fullName,
         headline: form.headline,
         avatarUrl: form.avatarUrl,
+        resumePhotoUrl: form.resumePhotoUrl,
         email: form.email,
         location: form.location,
         availability: form.availability,
@@ -397,8 +400,10 @@ export function useAdminDashboard() {
       }
 
       await fetchAdminContent(token);
+      return true;
     } catch (submitError) {
       setError(submitError instanceof Error ? submitError.message : "Unable to save profile");
+      return false;
     } finally {
       setSubmitting(false);
     }
