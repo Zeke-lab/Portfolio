@@ -505,6 +505,31 @@ deployment work begins.
 Do not introduce a new hosting provider or infrastructure architecture
 without discussing it first.
 
+### Chosen hosting plan
+
+The initial production deployment will use:
+
+-   Vercel for the React/Vite frontend
+-   Render for the Express/Node.js backend
+-   Supabase for PostgreSQL and portfolio asset storage
+
+The frontend and backend remain separate services. The frontend receives
+the deployed backend URL through `VITE_API_URL`. The backend receives the
+deployed frontend URL through `CORS_ORIGIN`.
+
+The custom domain is optional and can be added after the first deployment.
+Provider dashboards must hold all database, Supabase, and authentication
+secrets; they must not be committed to the repository.
+
+### CI/CD workflow
+
+GitHub Actions runs frontend and backend builds for pushes to `main` and
+`resume_storage`, and for pull requests. Vercel and Render provide the CD
+step after their projects are connected to the GitHub repository: successful
+commits trigger a frontend deployment on Vercel and a backend deployment on
+Render. GitHub Actions does not contain production secrets or run database
+migrations automatically.
+
 ------------------------------------------------------------------------
 
 # 13. Rules for AI/Codex

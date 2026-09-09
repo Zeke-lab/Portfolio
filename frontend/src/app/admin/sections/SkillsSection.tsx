@@ -2,7 +2,7 @@ import type { SkillContent, SkillDraft } from "../types";
 import type { Dispatch, SetStateAction } from "react";
 import { useEffect, useRef, useState } from "react";
 import { Icon } from "@iconify/react";
-import { Search, X } from "lucide-react";
+import { Eye, EyeOff, Search, X } from "lucide-react";
 import { getSkillIcon, getSkillIconIdentifier } from "../../skillIcons";
 import { FEATURED_ICONS, searchIcons, type IconSearchResult } from "../api/iconApi";
 
@@ -15,6 +15,7 @@ type Props = {
   onSave: () => Promise<boolean>;
   onEdit: (skill: SkillContent) => void;
   onDelete: (skillId: string) => void;
+  onToggleVisibility: (skill: SkillContent) => void;
   onCancelEdit: () => void;
   error: string | null;
 };
@@ -24,7 +25,7 @@ function IconPreview({ name, label, size = 32 }: { name?: string | null; label?:
   const Icon = getSkillIcon(iconName);
 
   if (!iconName?.includes(":")) {
-    return <Icon size={size} className="text-indigo-300" />;
+    return <Icon size={size} className="text-indigo-300" aria-hidden="true" />;
   }
 
   return <IconifyIcon icon={iconName} width={size} height={size} />;
@@ -120,7 +121,7 @@ function IconPicker({ value, onChange }: { value: string; onChange: (value: stri
   );
 }
 
-export function SkillsSection({ draftSkill, editingSkillId, skills, submitting, setDraftSkill, onSave, onEdit, onDelete, onCancelEdit, error }: Props) {
+export function SkillsSection({ draftSkill, editingSkillId, skills, submitting, setDraftSkill, onSave, onEdit, onDelete, onToggleVisibility, onCancelEdit, error }: Props) {
   const sectionRef = useRef<HTMLElement>(null);
   const [formOpen, setFormOpen] = useState(false);
   const categories = Array.from(new Set([
@@ -208,15 +209,27 @@ export function SkillsSection({ draftSkill, editingSkillId, skills, submitting, 
         <div className="space-y-2">
           {skills.length === 0 && <p className="text-sm text-slate-400">No skills yet.</p>}
           {skills.map((skill) => (
-            <div key={skill.id} className="flex items-center justify-between rounded-xl border border-white/10 bg-slate-900/70 px-3 py-2">
+            <div key={skill.id} className={`flex items-center justify-between rounded-xl border px-3 py-2 ${skill.visible ? "border-white/10 bg-slate-900/70" : "border-white/5 bg-slate-950/60 opacity-60"}`}>
               <div className="flex items-center gap-3">
-                <IconPreview name={skill.icon} label={skill.name} size={24} />
+                <span className="flex size-10 shrink-0 items-center justify-center rounded-lg border border-indigo-300/20 bg-indigo-400/10" title={`${skill.name} icon`}>
+                  <IconPreview name={skill.icon} label={skill.name} size={24} />
+                </span>
                 <div>
                 <p className="text-sm font-medium text-white">{skill.name}</p>
                 <p className="text-xs text-slate-400">{skill.category}</p>
                 </div>
               </div>
               <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => onToggleVisibility(skill)}
+                  disabled={submitting}
+                  className={`rounded-lg border p-1.5 transition-colors disabled:opacity-60 ${skill.visible ? "border-emerald-300/40 bg-emerald-500/10 text-emerald-200 hover:bg-emerald-500/20" : "border-white/10 bg-slate-900/80 text-slate-400 hover:bg-white/[0.06] hover:text-white"}`}
+                  aria-label={skill.visible ? `Hide ${skill.name} from portfolio` : `Show ${skill.name} on portfolio`}
+                  title={skill.visible ? "Hide from portfolio" : "Show on portfolio"}
+                >
+                  {skill.visible ? <Eye size={16} /> : <EyeOff size={16} />}
+                </button>
                 <button type="button" onClick={() => handleEdit(skill)} disabled={submitting} className="rounded-lg border border-indigo-300/40 bg-indigo-500/10 px-2.5 py-1 text-xs font-semibold text-indigo-200 disabled:opacity-60">Edit</button>
                 <button type="button" onClick={() => onDelete(skill.id)} disabled={submitting} className="rounded-lg border border-red-300/40 bg-red-500/10 px-2.5 py-1 text-xs font-semibold text-red-200 disabled:opacity-60">Delete</button>
               </div>

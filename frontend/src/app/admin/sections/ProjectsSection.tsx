@@ -131,6 +131,7 @@ export function ProjectsSection({
                 <label htmlFor="project-image-upload" className="cursor-pointer rounded-lg border border-indigo-500/30 bg-indigo-500/10 px-3 py-1.5 text-xs font-semibold text-indigo-300 hover:bg-indigo-500/20">
                   {uploadingImage ? "Uploading image..." : "📷 Upload Project Image"}
                 </label>
+                {draftProject.imageUrl && <button type="button" onClick={() => setDraftProject((current) => ({ ...current, imageUrl: "" }))} className="ml-2 rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-1.5 text-xs font-semibold text-red-300 hover:bg-red-500/20">Remove image</button>}
               </div>
             </div>
           </div>
@@ -145,6 +146,26 @@ export function ProjectsSection({
             placeholder="https://example.com/screenshot-1.png\nhttps://example.com/screenshot-2.png"
             className="mt-2 w-full rounded-xl border border-white/10 bg-slate-900/80 px-3 py-2.5 text-white"
           />
+          {draftProject.gallery.split("\n").map((url) => url.trim()).filter(Boolean).length > 0 && (
+            <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3">
+              {draftProject.gallery.split("\n").map((url) => url.trim()).filter(Boolean).map((url, index) => (
+                <div key={`${url}-${index}`} className="group relative overflow-hidden rounded-xl border border-white/10 bg-slate-900/70">
+                  <img src={url} alt={`Gallery preview ${index + 1}`} className="h-28 w-full object-cover" onError={(event) => { event.currentTarget.style.opacity = "0.25"; }} />
+                  <button
+                    type="button"
+                    onClick={() => setDraftProject((current) => ({
+                      ...current,
+                      gallery: current.gallery.split("\n").filter((item) => item.trim() !== url).join("\n"),
+                    }))}
+                    aria-label={`Remove gallery image ${index + 1}`}
+                    className="absolute right-2 top-2 rounded-lg border border-red-300/40 bg-slate-950/85 px-2 py-1 text-sm font-bold text-red-200 opacity-0 transition-opacity group-hover:opacity-100 focus:opacity-100"
+                  >
+                    ×
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
           <div className="mt-2">
             <input ref={galleryInputRef} type="file" accept="image/*" multiple onChange={handleGalleryFileChange} className="hidden" id="project-gallery-upload" />
             <label htmlFor="project-gallery-upload" className="cursor-pointer rounded-lg border border-indigo-500/30 bg-indigo-500/10 px-3 py-1.5 text-xs font-semibold text-indigo-300 hover:bg-indigo-500/20">

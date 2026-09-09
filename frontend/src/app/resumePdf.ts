@@ -16,12 +16,21 @@ async function imageToDataUrl(url: string) {
     const response = await fetch(url);
     if (!response.ok) return null;
     const blob = await response.blob();
-    return await new Promise<string | null>((resolve) => {
-      const reader = new FileReader();
-      reader.onload = () => resolve(typeof reader.result === "string" ? reader.result : null);
-      reader.onerror = () => resolve(null);
-      reader.readAsDataURL(blob);
-    });
+    const bitmap = await createImageBitmap(blob);
+    const canvas = document.createElement("canvas");
+    const size = 420;
+    canvas.width = size;
+    canvas.height = size;
+    const context = canvas.getContext("2d");
+    if (!context) return null;
+    context.fillStyle = "#ffffff";
+    context.fillRect(0, 0, size, size);
+    const scale = Math.max(size / bitmap.width, size / bitmap.height);
+    const width = bitmap.width * scale;
+    const height = bitmap.height * scale;
+    context.drawImage(bitmap, (size - width) / 2, (size - height) / 2, width, height);
+    bitmap.close();
+    return canvas.toDataURL("image/jpeg", 0.9);
   } catch {
     return null;
   }
@@ -44,8 +53,7 @@ export async function downloadResumePdf(portfolio: PortfolioView) {
 
   if (photo) {
     try {
-      const format = photo.startsWith("data:image/png") ? "PNG" : "JPEG";
-      doc.addImage(photo, format, PAGE_WIDTH - MARGIN - 28, 8, 28, 28, undefined, "FAST");
+      doc.addImage(photo, "JPEG", PAGE_WIDTH - MARGIN - 28, 8, 28, 28, undefined, "FAST");
     } catch {
       // The resume remains usable when an external avatar cannot be embedded.
     }

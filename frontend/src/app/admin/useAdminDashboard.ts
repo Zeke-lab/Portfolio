@@ -320,6 +320,22 @@ export function useAdminDashboard() {
     }
   };
 
+  const toggleSkillVisibility = async (skill: { id: string; visible: boolean }) => {
+    if (!token) return;
+
+    setSubmitting(true);
+    setError(null);
+
+    try {
+      await adminApi.updateSkillVisibility(token, skill.id, !skill.visible);
+      await fetchAdminContent(token);
+    } catch (submitError) {
+      setError(submitError instanceof Error ? submitError.message : "Unable to update skill visibility");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   const removeExperience = async (experienceId: string) => {
     if (!token) return;
 
@@ -657,6 +673,7 @@ export function useAdminDashboard() {
     removeProfile,
     removeProject,
     removeSkill,
+    toggleSkillVisibility,
     removeExperience,
     removeEducation,
     removeCertification,

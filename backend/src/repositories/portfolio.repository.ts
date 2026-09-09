@@ -61,7 +61,7 @@ export function getPortfolioRepository() {
 
     async getSkills() {
       return db.skill.findMany({
-        where: published,
+        where: { ...published, visible: true },
         orderBy: [{ category: "asc" }, { featured: "desc" }, { createdAt: "asc" }],
       });
     },
