@@ -13,7 +13,7 @@ services:
       - key: DIRECT_URL
         sync: false
       - key: CORS_ORIGIN
-        sync: false
+        value: https://yemyatmin.vercel.app
       - key: JWT_SECRET
         sync: false
       - key: SUPABASE_URL
