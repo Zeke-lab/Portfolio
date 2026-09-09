@@ -78,7 +78,7 @@ export default function AdminDashboard() {
         <div className="mb-8 flex flex-col gap-4 rounded-2xl border border-white/10 bg-white/[0.03] p-4 sm:p-5 md:flex-row md:items-center md:justify-between">
           <div>
             <p className="text-xs uppercase tracking-[0.2em] text-indigo-300">Portfolio Admin</p>
-            <h1 className="mt-2 text-2xl font-bold">Content Dashboard hahaha</h1>
+            <h1 className="mt-2 text-2xl font-bold">Content Dashboard</h1>
           </div>
 
           <div className="flex flex-wrap items-center gap-3">
