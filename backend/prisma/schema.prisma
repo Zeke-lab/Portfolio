@@ -145,6 +145,7 @@ model Skill {
   category   String
   name       String
   icon       String?
+  visible    Boolean       @default(true)
   featured   Boolean       @default(false)
   status     ContentStatus @default(draft)
   createdAt  DateTime      @default(now())

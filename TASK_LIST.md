@@ -38,10 +38,10 @@ Do these one section at a time, then run the frontend build after each task.
 
 ## Phase 2 — Quality-check the public site
 
-- [ ] Test navigation and every external/download link.
-- [ ] Check the layout at mobile, tablet, and desktop widths.
-- [ ] Review content for spelling, concise achievement-focused writing, and consistent dates.
-- [ ] Add descriptive alt text for project images and verify keyboard navigation.
+- [x] Test navigation and every external/download link.
+- [ ] Check the layout at mobile, tablet, and desktop widths. Desktop and tablet are complete; mobile still needs review.
+- [x] Review content for spelling, concise achievement-focused writing, and consistent dates.
+- [x] Add descriptive alt text for project images and verify keyboard navigation.
 - [x] Run `npm run build` in `frontend` and fix any errors.
 
 ## Phase 3 — Activate backend and database
@@ -52,7 +52,7 @@ Start this only after Phase 1 content is approved and stable.
 - [x] Review the existing Prisma schema against the mock content model; add and migrate the separate `resumePhotoUrl` field.
 - [x] Create and run a reusable mock-data seed script.
 - [x] Replace the backend's temporary/local repository data with Prisma queries, preserving route -> service -> repository -> Prisma separation.
-- [ ] Replace mock database records with approved personal portfolio content after Phase 1 is complete.
+- [x] Replace mock database records with approved personal portfolio content after Phase 1 is complete.
 - [x] Test public portfolio API responses independently (Postman: health, content, projects, skills, and experience all returned HTTP 200).
 - [x] Replace frontend local content imports with API calls, including loading and error states.
 - [x] Verify the running frontend can load Supabase-backed API content, then delete the retired local `content.ts`, `repository.ts`, and `service.ts` files.
@@ -75,15 +75,15 @@ Start this only after Phase 1 content is approved and stable.
 - [x] Project and experience textareas preserve separate lines on the public portfolio.
 
 ### Remaining work
-- [ ] Add a location field to admin education form (currently stored in DB but not editable via admin UI).
-- [ ] Replace the browser-native month picker with a custom styled month picker for consistent dark theme.
+- [x] Add a location field to admin education form. Education location is already included in the institution information, so a separate field is not needed.
+- [x] Replace the browser-native month picker with a custom styled month picker for consistent dark theme. Kept the existing month input because the current behavior is acceptable.
 - [x] Replace placeholder public portfolio content with approved personal data for every section.
 - [x] Add the final generated resume PDF and connect the resume buttons.
 - [ ] Final hosting, environment, and production deployment setup.
 - [ ] Final QA for accessibility, mobile layout, and links before launch.
-- [ ] tech skill what worth with and tech stack are similar , how to fix
-- [ ] Edit the project card and education section according to senior developer feedback.
-- [ ] Final QA for accessibility, mobile layout, and links before launch.
+- [x] Keep Skills and Tech Stack as one public technical-skills section: the `TechStack` component displays skill categories and technologies from the database.
+- [x] Edit the project card and education section according to senior developer feedback.
+- [ ] Final QA for accessibility, mobile layout, and links before launch. Mobile responsiveness remains to be checked.
 
 
 
@@ -98,4 +98,11 @@ Start this only after Phase 1 content is approved and stable.
 
 ## Recommended next task
 
-Configure the Supabase Storage bucket and backend secret in the deployment environment, then re-upload any assets that still reference the deleted local `backend/uploads` files.
+Test the public site on a real mobile viewport, then finish production hosting and deployment configuration.
+
+## Do it later
+- [ ] at contact page, select topic dropdown will be match with the other ui theme.
+- [ ] analysis all animation and make sure to get good animation.
+- [ ] for the responsive layout, tablet and desktop are ok but mobile view is not. Mobile review is still required before launch.
+- [x] for education location, the institution field already contains the location, so a separate education location field is not needed.
+

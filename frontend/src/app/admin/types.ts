@@ -61,6 +61,7 @@ export type SkillContent = {
   category: string;
   name: string;
   icon?: string | null;
+  visible: boolean;
 };
 
 export type ExperienceBullet = {

@@ -283,6 +283,16 @@ export async function updateSkill(id: string, payload: SkillInput) {
   });
 }
 
+export async function updateSkillVisibility(id: string, visible: boolean) {
+  const existing = await db.skill.findUnique({ where: { id } });
+  if (!existing) return null;
+
+  return db.skill.update({
+    where: { id },
+    data: { visible },
+  });
+}
+
 export async function deleteSkill(id: string) {
   const existing = await db.skill.findUnique({ where: { id } });
   if (!existing) return false;

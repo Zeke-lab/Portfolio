@@ -153,6 +153,7 @@ export default function AdminDashboard() {
             onSave={state.saveSkill}
             onEdit={state.startEditSkill}
             onDelete={state.removeSkill}
+            onToggleVisibility={state.toggleSkillVisibility}
             onCancelEdit={state.resetSkillDraft}
             error={state.error}
           />

@@ -58,6 +58,7 @@ export const adminApi = {
   deleteProject: (token: string, id: string) => request(`/api/admin/project/${id}`, { method: "DELETE", token }),
   createSkill: (token: string, body: unknown) => request("/api/admin/skill", { method: "POST", token, body }),
   updateSkill: (token: string, id: string, body: unknown) => request(`/api/admin/skill/${id}`, { method: "PUT", token, body }),
+  updateSkillVisibility: (token: string, id: string, visible: boolean) => request(`/api/admin/skill/${id}/visibility`, { method: "PATCH", token, body: { visible } }),
   deleteSkill: (token: string, id: string) => request(`/api/admin/skill/${id}`, { method: "DELETE", token }),
   createExperience: (token: string, body: unknown) => request("/api/admin/experience", { method: "POST", token, body }),
   updateExperience: (token: string, id: string, body: unknown) => request(`/api/admin/experience/${id}`, { method: "PUT", token, body }),

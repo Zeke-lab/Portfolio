@@ -22,6 +22,7 @@ import {
   updateProfile,
   updateProject,
   updateSkill,
+  updateSkillVisibility,
 } from "../services/admin.service.js";
 import {
   certificationCreateSchema,
@@ -42,6 +43,7 @@ import {
 
 import multer from "multer";
 import crypto from "crypto";
+import { z } from "zod";
 import { getStorageBucket, getSupabaseStorage } from "../storage/supabase.js";
 
 const upload = multer({
@@ -247,6 +249,22 @@ adminRouter.put("/skill/:id", requireAdmin, async (request, response, next) => {
     const payload = skillUpdateSchema.parse(request.body);
 
     const skill = await updateSkill(id, payload);
+    if (!skill) {
+      response.status(404).json({ error: "Skill not found" });
+      return;
+    }
+
+    response.json({ skill });
+  } catch (error) {
+    next(error);
+  }
+});
+
+adminRouter.patch("/skill/:id/visibility", requireAdmin, async (request, response, next) => {
+  try {
+    const { id } = idParamSchema.parse(request.params);
+    const visible = z.boolean().parse(request.body?.visible);
+    const skill = await updateSkillVisibility(id, visible);
     if (!skill) {
       response.status(404).json({ error: "Skill not found" });
       return;

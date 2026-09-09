@@ -14,8 +14,14 @@ import { getSkillIcon, getSkillIconIdentifier } from "./skillIcons";
 import { downloadResumePdf } from "./resumePdf";
 
 // ─── global scroll helper ─────────────────────────────────────────────────────
-const go = (id: string) =>
-  document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
+const go = (id: string) => {
+  const target = document.getElementById(id);
+  if (!target) return;
+
+  const headerOffset = 78;
+  const targetTop = target.getBoundingClientRect().top + window.scrollY - headerOffset;
+  window.scrollTo({ top: Math.max(0, targetTop), behavior: "smooth" });
+};
 
 // ─── icon map ─────────────────────────────────────────────────────────────────
 const CAT_ICONS: Record<string, React.ComponentType<{ size?: number; className?: string }>> = {
@@ -96,8 +102,8 @@ function Nav({ dark, setDark, profile, onNavigateHome, onDownloadResume }: { dar
     >
       <div className="max-w-[1260px] mx-auto px-4 sm:px-6 h-[62px] flex items-center justify-between gap-4 sm:gap-8">
         {/* Logo */}
-        <button onClick={() => navGo("home")} className="shrink-0 text-[15px] font-bold" style={FF_DISPLAY}>
-          <span className="bg-gradient-to-r from-indigo-400 via-violet-400 to-cyan-400 bg-clip-text text-transparent">
+        <button onClick={() => navGo("home")} className="min-w-0 max-w-[calc(100vw-76px)] shrink truncate text-left text-[15px] font-bold" style={FF_DISPLAY}>
+          <span className="block truncate bg-gradient-to-r from-indigo-400 via-violet-400 to-cyan-400 bg-clip-text text-transparent">
             {profile?.fullName || "Ye Myat Min"}
           </span>
         </button>
@@ -228,7 +234,7 @@ function Hero({ profile }: { profile?: ApiProfile | null }) {
                 </span>
               </h1>
               <p
-                className="text-xl md:text-2xl font-semibold text-foreground/75 mb-6"
+                className="mb-6 text-lg font-semibold leading-snug text-foreground/75 sm:text-xl md:text-2xl"
                 style={FF_DISPLAY}
               >
                 {profile?.headline || "Full-Stack Software Engineer"}
@@ -323,7 +329,7 @@ function About({ profile, onDownloadResume }: { profile?: ApiProfile | null; onD
 
   return (
     <section id="about" className="py-28 md:py-36 bg-background relative">
-      <div className="max-w-[1260px] mx-auto px-4 sm:px-6">
+      <div className="mx-auto max-w-[1260px] px-4 sm:px-6">
         <motion.div
           initial={{ opacity: 0, y: 40 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -363,11 +369,12 @@ function About({ profile, onDownloadResume }: { profile?: ApiProfile | null; onD
           <div>
             <Eyebrow text="About Me" />
             <h2
-              className="text-3xl sm:text-4xl md:text-[3.2rem] font-extrabold text-foreground mb-6 leading-[1.1] tracking-tight"
+              className="mb-6 text-3xl font-extrabold leading-[1.1] tracking-tight text-foreground sm:text-4xl md:text-[3.2rem]"
               style={FF_DISPLAY}
             >
               Building practical software with a strong foundation in
               <br className="hidden sm:block" />
+              {" "}
               <span className="bg-gradient-to-r from-indigo-400 to-cyan-400 bg-clip-text text-transparent">
                 full-stack development
               </span>
@@ -419,17 +426,17 @@ function About({ profile, onDownloadResume }: { profile?: ApiProfile | null; onD
           className="grid grid-cols-2 md:grid-cols-4 gap-4"
         >
           {stats.map((s) => (
-            <Glass key={s.label} className="p-6 group hover:bg-white/[0.05] transition-all">
+            <Glass key={s.label} className="p-3 sm:p-6 group hover:bg-white/[0.05] transition-all min-w-0">
               <div className="flex items-center gap-2 mb-2 text-indigo-400/70 group-hover:text-indigo-400 transition-colors">
                 {s.icon}
               </div>
               <div
-                className="text-4xl font-extrabold mb-1 bg-gradient-to-r from-indigo-400 to-cyan-400 bg-clip-text text-transparent"
+                className="text-2xl sm:text-3xl md:text-4xl font-extrabold mb-1 bg-gradient-to-r from-indigo-400 to-cyan-400 bg-clip-text text-transparent break-words leading-tight"
                 style={FF_DISPLAY}
               >
                 {s.value}
               </div>
-              <div className="text-sm text-muted-foreground" style={FF_BODY}>{s.label}</div>
+              <div className="text-xs sm:text-sm text-muted-foreground break-words" style={FF_BODY}>{s.label}</div>
             </Glass>
           ))}
         </motion.div>
@@ -452,7 +459,7 @@ function Projects({
 
   return (
     <section id="projects" className={`py-28 md:py-36 ${sectionClass}`}>
-      <div className="max-w-[1200px] mx-auto px-6">
+      <div className="mx-auto max-w-[1200px] px-4 sm:px-6">
         <motion.div
           initial={{ opacity: 0, y: 40 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -465,7 +472,7 @@ function Projects({
             className="text-3xl sm:text-4xl md:text-[3.2rem] font-extrabold text-foreground mb-4 tracking-tight"
             style={FF_DISPLAY}
           >
-            Projects That Ship
+            Shipped Code
           </h2>
           <p className="text-[15px] text-muted-foreground max-w-xl mx-auto" style={FF_BODY}>
             A simple, clean project list with a clear story behind each build.
@@ -556,7 +563,7 @@ function CaseStudy({
 
   return (
     <section className={`min-h-screen py-28 md:py-36 ${sectionClass}`}>
-      <div className="max-w-[1200px] mx-auto px-6">
+      <div className="mx-auto max-w-[1200px] px-4 sm:px-6">
         {onBack ? (
           <button onClick={onBack} className="mb-10 inline-flex items-center gap-2 text-[13px] font-semibold text-muted-foreground hover:text-foreground transition-colors" style={FF_DISPLAY}>
             <ArrowRight size={14} className="rotate-180" />
@@ -571,7 +578,7 @@ function CaseStudy({
                 transition={{ duration: 0.6 }}
               >
                 <Eyebrow text="Case Study" />
-                <h2 className="mb-5 text-4xl font-extrabold tracking-tight text-foreground md:text-[4.2rem] md:leading-[1.02]" style={FF_DISPLAY}>
+                <h2 className="mb-5 break-words text-3xl font-extrabold leading-[1.05] tracking-tight text-foreground sm:text-4xl md:text-[4.2rem] md:leading-[1.02]" style={FF_DISPLAY}>
                   {project.title}
                 </h2>
                 <p className="mb-8 max-w-xl text-[15px] font-semibold leading-[1.7] text-foreground" style={FF_BODY}>
@@ -592,11 +599,11 @@ function CaseStudy({
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.6, delay: 0.1 }}
               >
-                <div className="flex min-h-[260px] items-center justify-center overflow-hidden rounded-[30px] border border-white/[0.08] bg-white/[0.045] p-5 shadow-2xl shadow-indigo-950/30 sm:min-h-[360px] sm:p-8">
+                <div className="flex min-h-[180px] items-center justify-center sm:min-h-[260px]">
                   <img
                     src={selectedImage.imageUrl}
                     alt={selectedImage.caption || `${project.title} featured screenshot`}
-                    className="block h-auto max-h-[560px] max-w-full rounded-[18px] object-contain"
+                    className="block h-auto max-h-[560px] max-w-full rounded-[12px] object-contain"
                     onError={(event) => { event.currentTarget.src = project.img; }}
                   />
                 </div>
@@ -703,7 +710,7 @@ function Experience({ dark, experience }: { dark: boolean; experience: Portfolio
 
   return (
     <section id="experience" className={`py-28 md:py-36 ${sectionClass}`}>
-      <div className="max-w-[1200px] mx-auto px-6">
+      <div className="mx-auto max-w-[1200px] px-4 sm:px-6">
         <motion.div
           initial={{ opacity: 0, y: 40 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -716,7 +723,7 @@ function Experience({ dark, experience }: { dark: boolean; experience: Portfolio
             className="text-4xl md:text-[3.2rem] font-extrabold text-foreground tracking-tight"
             style={FF_DISPLAY}
           >
-            Where I&apos;ve Worked
+            Trajectory
           </h2>
         </motion.div>
 
@@ -809,7 +816,7 @@ function Education({ dark, education, certs }: { dark: boolean; education: Portf
 
   return (
     <section id="education" className={`py-28 md:py-36 ${sectionClass}`}>
-      <div className="max-w-[1200px] mx-auto px-6">
+      <div className="mx-auto max-w-[1200px] px-4 sm:px-6">
         <motion.div
           initial={{ opacity: 0, y: 40 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -822,7 +829,7 @@ function Education({ dark, education, certs }: { dark: boolean; education: Portf
             className="text-4xl md:text-[3.2rem] font-extrabold text-foreground tracking-tight"
             style={FF_DISPLAY}
           >
-            Education &amp; Certifications
+            Foundation & Credentials
           </h2>
         </motion.div>
 
@@ -834,12 +841,12 @@ function Education({ dark, education, certs }: { dark: boolean; education: Portf
             viewport={{ once: true, margin: "-60px" }}
             transition={{ duration: 0.55 }}
           >
-            <Glass className="p-8 h-full hover:bg-white/[0.05] transition-all">
+            <Glass className="p-5 sm:p-8 h-full hover:bg-white/[0.05] transition-all">
               <div className="flex items-center gap-3 mb-7">
-                <div className="w-12 h-12 rounded-2xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center">
+                <div className="w-12 h-12 rounded-2xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center shrink-0">
                   <GraduationCap size={20} className="text-blue-400" />
                 </div>
-                <div>
+                <div className="min-w-0">
                   <p className="text-[11px] font-bold text-muted-foreground uppercase tracking-widest" style={FF_BODY}>Education</p>
                   <p className="text-[14px] font-semibold text-foreground" style={FF_DISPLAY}>Academic Background</p>
                 </div>
@@ -847,35 +854,35 @@ function Education({ dark, education, certs }: { dark: boolean; education: Portf
 
               {primaryEducation ? (
                 <>
-                  <h3 className="text-[22px] font-extrabold text-foreground mb-1" style={FF_DISPLAY}>{primaryEducation.degree}</h3>
-                  <p className="text-indigo-400 font-semibold text-[14px] mb-1" style={FF_DISPLAY}>{primaryEducation.university}</p>
-                  <p className="text-[12px] text-muted-foreground mb-5" style={FF_MONO}>{primaryEducation.period}</p>
+                  <h3 className="text-[20px] sm:text-[22px] font-extrabold text-foreground mb-1 break-words" style={FF_DISPLAY}>{primaryEducation.degree}</h3>
+                  <p className="text-indigo-400 font-semibold text-[14px] mb-1 break-words" style={FF_DISPLAY}>{primaryEducation.university}</p>
+                  <p className="text-[12px] text-muted-foreground mb-5 break-words" style={FF_MONO}>{primaryEducation.period}</p>
 
-                  <p className="text-[14px] text-muted-foreground leading-[1.75] mb-5" style={FF_BODY}>
+                  <p className="text-[14px] text-muted-foreground leading-[1.75] mb-5 break-words" style={FF_BODY}>
                     {primaryEducation.description}
                   </p>
 
                   {primaryEducation.focus.length > 0 && (
                     <div className="flex flex-wrap gap-2">
                       {primaryEducation.focus.map((s) => (
-                        <span key={s} className="px-2.5 py-1 text-[12px] text-blue-300 bg-blue-500/[0.07] border border-blue-500/20 rounded-lg" style={FF_MONO}>{s}</span>
+                        <span key={s} className="px-2.5 py-1 text-[12px] text-blue-300 bg-blue-500/[0.07] border border-blue-500/20 rounded-lg break-words" style={FF_MONO}>{s}</span>
                       ))}
                     </div>
                   )}
                 </>
               ) : (
                 <>
-                  <h3 className="text-[22px] font-extrabold text-foreground mb-1" style={FF_DISPLAY}>[YOUR DEGREE]</h3>
-                  <p className="text-indigo-400 font-semibold text-[14px] mb-1" style={FF_DISPLAY}>[YOUR UNIVERSITY]</p>
-                  <p className="text-[12px] text-muted-foreground mb-5" style={FF_MONO}>[YOUR DATES]</p>
+                  <h3 className="text-[20px] sm:text-[22px] font-extrabold text-foreground mb-1 break-words" style={FF_DISPLAY}>[YOUR DEGREE]</h3>
+                  <p className="text-indigo-400 font-semibold text-[14px] mb-1 break-words" style={FF_DISPLAY}>[YOUR UNIVERSITY]</p>
+                  <p className="text-[12px] text-muted-foreground mb-5 break-words" style={FF_MONO}>[YOUR DATES]</p>
 
-                  <p className="text-[14px] text-muted-foreground leading-[1.75] mb-5" style={FF_BODY}>
+                  <p className="text-[14px] text-muted-foreground leading-[1.75] mb-5 break-words" style={FF_BODY}>
                     Replace this section with your actual academic background, focus areas, and achievements.
                   </p>
 
                   <div className="flex flex-wrap gap-2">
                     {["[YOUR FOCUS 1]", "[YOUR FOCUS 2]", "[YOUR FOCUS 3]"].map((s) => (
-                      <span key={s} className="px-2.5 py-1 text-[12px] text-blue-300 bg-blue-500/[0.07] border border-blue-500/20 rounded-lg" style={FF_MONO}>{s}</span>
+                      <span key={s} className="px-2.5 py-1 text-[12px] text-blue-300 bg-blue-500/[0.07] border border-blue-500/20 rounded-lg break-words" style={FF_MONO}>{s}</span>
                     ))}
                   </div>
                 </>
@@ -890,35 +897,39 @@ function Education({ dark, education, certs }: { dark: boolean; education: Portf
             viewport={{ once: true, margin: "-60px" }}
             transition={{ duration: 0.55 }}
           >
-            <Glass className="p-8 h-full hover:bg-white/[0.05] transition-all">
+            <Glass className="p-5 sm:p-8 h-full hover:bg-white/[0.05] transition-all">
               <div className="flex items-center gap-3 mb-7">
-                <div className="w-12 h-12 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center">
+                <div className="w-12 h-12 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center shrink-0">
                   <Award size={20} className="text-amber-400" />
                 </div>
-                <div>
+                <div className="min-w-0">
                   <p className="text-[11px] font-bold text-muted-foreground uppercase tracking-widest" style={FF_BODY}>Certifications</p>
                   <p className="text-[14px] font-semibold text-foreground" style={FF_DISPLAY}>Professional Credentials</p>
                 </div>
               </div>
 
               <div className="space-y-3">
-                {certs.map((cert) => (
+                {certs.length > 0 ? certs.map((cert) => (
                   <div
                     key={cert.title}
-                    className="flex items-center justify-between gap-4 p-4 bg-white/[0.02] border border-white/[0.06] rounded-xl hover:border-white/[0.1] hover:bg-white/[0.04] transition-all"
+                    className="flex flex-col gap-3 p-4 bg-white/[0.02] border border-white/[0.06] rounded-xl hover:border-white/[0.1] hover:bg-white/[0.04] transition-all sm:flex-row sm:items-center sm:justify-between"
                   >
-                    <div className="flex items-center gap-3 min-w-0">
+                    <div className="flex items-center gap-3 min-w-0 flex-1">
                       <div className={`w-8 h-8 rounded-lg flex items-center justify-center border shrink-0 ${cert.color}`}>
                         <Award size={14} />
                       </div>
                       <div className="min-w-0">
-                        <p className="text-[13.5px] font-semibold text-foreground truncate" style={FF_DISPLAY}>{cert.title}</p>
-                        <p className="text-[12px] text-muted-foreground" style={FF_BODY}>{cert.issuer}</p>
+                        <p className="text-[13.5px] font-semibold text-foreground break-words" style={FF_DISPLAY}>{cert.title}</p>
+                        <p className="text-[12px] text-muted-foreground break-words" style={FF_BODY}>{cert.issuer}</p>
                       </div>
                     </div>
                     <span className="text-[12px] text-muted-foreground shrink-0" style={FF_MONO}>{cert.year}</span>
                   </div>
-                ))}
+                )) : (
+                  <div className="p-4 border border-dashed border-white/10 rounded-xl text-sm text-muted-foreground" style={FF_BODY}>
+                    No certifications added yet.
+                  </div>
+                )}
               </div>
             </Glass>
           </motion.div>
@@ -935,7 +946,7 @@ function TechStack({ dark, techGrid }: { dark: boolean; techGrid: PortfolioView[
 
   return (
     <section id="techstack" className={`py-28 md:py-36 ${sectionClass}`}>
-      <div className="max-w-[1200px] mx-auto px-6">
+      <div className="mx-auto max-w-[1200px] px-4 sm:px-6">
         <motion.div
           initial={{ opacity: 0, y: 40 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -1005,7 +1016,7 @@ function Contact({ dark, profile }: { dark: boolean; profile?: ApiProfile | null
   };
 
   const inputCls =
-    "w-full px-4 py-3 text-[14px] bg-white/[0.04] border border-white/[0.09] rounded-xl text-foreground placeholder:text-muted-foreground/40 focus:outline-none focus:border-indigo-500/50 focus:ring-2 focus:ring-indigo-500/15 transition-all";
+    "w-full px-4 py-3 text-[14px] bg-white/[0.04] border border-white/20 rounded-xl text-foreground placeholder:text-muted-foreground/50 shadow-sm shadow-black/10 focus:outline-none focus:border-indigo-400/70 focus:ring-2 focus:ring-indigo-500/20 transition-all";
 
   const emailVal = profile?.email || "yemyatmin192@gmail.com";
   const linkedinVal = profile?.linkedinUrl || "https://www.linkedin.com/in/ye-myat-min-5904b91ba";
@@ -1021,7 +1032,7 @@ function Contact({ dark, profile }: { dark: boolean; profile?: ApiProfile | null
 
   return (
     <section id="contact" className={`py-28 md:py-36 ${dark ? DARK_SECTION : "bg-[#f7f9ff]"}`}>
-      <div className="max-w-[1200px] mx-auto px-6">
+      <div className="mx-auto max-w-[1200px] px-4 sm:px-6">
         <motion.div
           initial={{ opacity: 0, y: 40 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -1101,7 +1112,7 @@ function Contact({ dark, profile }: { dark: boolean; profile?: ApiProfile | null
             viewport={{ once: true, margin: "-60px" }}
             transition={{ duration: 0.55 }}
           >
-            <Glass className="p-8">
+            <Glass className="p-5 sm:p-8">
               {status === "sent" ? (
                 <div className="flex flex-col items-center justify-center py-14 text-center">
                   <div className="w-16 h-16 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center mb-4">
@@ -1125,7 +1136,7 @@ function Contact({ dark, profile }: { dark: boolean; profile?: ApiProfile | null
                     <p role="alert" className="text-sm text-red-400">Unable to send your message. Please try again.</p>
                   )}
                   <div className="grid sm:grid-cols-2 gap-4">
-                    <div>
+                    <div >
                       <label htmlFor="name" className="block text-[12px] font-semibold text-muted-foreground mb-1.5 uppercase tracking-wide" style={FF_BODY}>
                         Full Name
                       </label>
