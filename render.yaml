@@ -2,6 +2,7 @@ services:
   - type: web
     name: portfolio-api
     runtime: node
+    plan: free
     rootDir: backend
     buildCommand: npm install && npm run db:generate && npm run build
     startCommand: npm start
