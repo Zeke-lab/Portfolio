@@ -1362,7 +1362,7 @@ export default function App() {
 
   if (caseStudyMatch) {
     return (
-      <div className="min-h-screen bg-background text-foreground antialiased" style={FF_BODY}>
+      <div className="min-h-screen overflow-x-clip bg-background text-foreground antialiased" style={FF_BODY}>
         <Nav dark={dark} setDark={setDark} profile={portfolio.profile} onNavigateHome={navigateHome} onDownloadResume={() => downloadResumePdf(portfolio)} />
         <CaseStudy dark={dark} project={activeProject} onBack={() => navigateHome("projects")} />
         <Footer profile={portfolio.profile} />
@@ -1371,7 +1371,7 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen bg-background text-foreground antialiased" style={FF_BODY}>
+    <div className="min-h-screen overflow-x-clip bg-background text-foreground antialiased" style={FF_BODY}>
       <Nav dark={dark} setDark={setDark} profile={portfolio.profile} onNavigateHome={navigateHome} onDownloadResume={() => downloadResumePdf(portfolio)} />
       <Hero profile={portfolio.profile} />
       <About profile={portfolio.profile} onDownloadResume={() => downloadResumePdf(portfolio)} />

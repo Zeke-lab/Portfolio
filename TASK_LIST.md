@@ -39,7 +39,7 @@ Do these one section at a time, then run the frontend build after each task.
 ## Phase 2 — Quality-check the public site
 
 - [x] Test navigation and every external/download link.
-- [ ] Check the layout at mobile, tablet, and desktop widths. Desktop and tablet are complete; mobile still needs review.
+- [x] Check the layout at mobile, tablet, and desktop widths. Verified at 390px, 768px, and 1280px with no horizontal overflow.
 - [x] Review content for spelling, concise achievement-focused writing, and consistent dates.
 - [x] Add descriptive alt text for project images and verify keyboard navigation.
 - [x] Run `npm run build` in `frontend` and fix any errors.
@@ -90,7 +90,9 @@ Start this only after Phase 1 content is approved and stable.
 
 ## Phase 5 — Launch preparation
 
-- [ ] Choose hosting for frontend and backend, then configure production environment variables and CORS.
+- [x] Choose hosting for frontend and backend: Vercel for the frontend, Render for the backend, and Supabase for database/storage.
+- [x] Add GitHub Actions CI to build the frontend and backend on pushes and pull requests.
+- [ ] Configure production environment variables and CORS.
 - [ ] Deploy the database, API, and frontend separately.
 - [ ] Add a custom domain, metadata, social sharing image, favicon, and analytics if wanted.
 - [ ] Perform a final cross-browser, mobile, accessibility, and link check.
@@ -98,11 +100,11 @@ Start this only after Phase 1 content is approved and stable.
 
 ## Recommended next task
 
-Test the public site on a real mobile viewport, then finish production hosting and deployment configuration.
+Configure provider environment variables, then deploy the Render API and Vercel frontend.
 
 ## Do it later
 - [ ] at contact page, select topic dropdown will be match with the other ui theme.
 - [ ] analysis all animation and make sure to get good animation.
-- [ ] for the responsive layout, tablet and desktop are ok but mobile view is not. Mobile review is still required before launch.
+- [x] for the responsive layout, tablet, desktop, and mobile views have been reviewed; no horizontal overflow was found.
 - [x] for education location, the institution field already contains the location, so a separate education location field is not needed.
 
