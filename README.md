@@ -1,6 +1,6 @@
-# Premium Personal Portfolio Website
+Personal Portfolio Website
 
-This is a code bundle for Premium Personal Portfolio Website. The original project is available at https://www.figma.com/design/tACwL5elyONv313YOye9ui/Premium-Personal-Portfolio-Website.
+This is the portfolio website of Ye Myat Min.
 
 ## Running the project locally
 
