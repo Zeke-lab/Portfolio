@@ -107,4 +107,7 @@ Configure provider environment variables, then deploy the Render API and Vercel 
 - [ ] analysis all animation and make sure to get good animation.
 - [x] for the responsive layout, tablet, desktop, and mobile views have been reviewed; no horizontal overflow was found.
 - [x] for education location, the institution field already contains the location, so a separate education location field is not needed.
+- [x] to make ai chatbot. connect with free ai and data feeding to it and asking my information form it
+
+
 
